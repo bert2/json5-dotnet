@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Json5", "Json5\Json5.csproj", "{0516AE2F-5D03-4124-820B-00A0875EADDD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D01132ED-FCA2-4F56-B99E-5C047707908B}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Json5.Tests", "Json5.Tests\Json5.Tests.csproj", "{2D81813A-D9A3-49C5-9940-70500CF2F42D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0516AE2F-5D03-4124-820B-00A0875EADDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0516AE2F-5D03-4124-820B-00A0875EADDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0516AE2F-5D03-4124-820B-00A0875EADDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0516AE2F-5D03-4124-820B-00A0875EADDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D81813A-D9A3-49C5-9940-70500CF2F42D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D81813A-D9A3-49C5-9940-70500CF2F42D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D81813A-D9A3-49C5-9940-70500CF2F42D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D81813A-D9A3-49C5-9940-70500CF2F42D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
