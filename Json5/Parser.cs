@@ -3,14 +3,16 @@
 
 using FParsec;
 using FParsec.CSharp;
-using static FParsec.CSharp.PrimitivesCS;
-using static FParsec.CSharp.CharParsersCS;
+
 using Microsoft.FSharp.Core;
+
 using System.Text.Json.Nodes;
+
+using static FParsec.CSharp.CharParsersCS;
+using static FParsec.CSharp.PrimitivesCS;
 
 namespace Json5.Parsing;
 
-using Chars = CharStream<Unit>;
 using NodeP = FSharpFunc<CharStream<Unit>, Reply<JsonNode?>>;
 
 public static class Parser {
@@ -26,5 +28,4 @@ public static class Parser {
         jnull,
         jtrue,
         jfalse);
-
 }

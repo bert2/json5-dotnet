@@ -1,6 +1,7 @@
 ﻿namespace Json5;
 
 using Parsing;
+
 using System.Text.Json.Nodes;
 
 public static class Json5 {
