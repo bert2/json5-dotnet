@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+	<meta charset="utf-8" />
+	<title>JSON5 Deserialization Reference</title>
+	<meta name="viewport" content="width=device-width" />
+	<style>
+		body {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+		}
+	</style>
+	<script type="module" defer>
+		import JSON5 from 'https://unpkg.com/json5@2/dist/index.min.mjs';
+
+		const json5 = document.getElementById('json5');
+		const json = document.getElementById('json');
+
+		json5.addEventListener('input', () => {
+			try {
+				const obj = JSON5.parse(json5.value)
+				console.log(obj);
+				json.value = JSON.stringify(obj);
+			} catch (e) {
+				json.value = e.message;
+			}
+		});
+	</script>
+</head>
+
+<body>
+	<textarea id="json5" rows="5" cols="30" placeholder="JSON5 input"></textarea>
+	<textarea id="json" rows="5" cols="30" placeholder="Parsed JSON" readonly></textarea>
+</body>
+
+</html>
