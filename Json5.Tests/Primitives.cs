@@ -40,13 +40,13 @@ public partial class Primitives {
             [Fact] void Negative() => Json5.Parse("-1656").Should().BeValue(-1656);
             [Fact] void LeadingZeros() => Json5.Parse("00123").Should().BeValue(123);
 
-            [Fact] void MinInt() => Json5.Parse("-2147483648").Should().BeValue((long)int.MinValue);
+            [Fact] void MinInt() => Json5.Parse("-2147483648").Should().BeValue(int.MinValue);
             [Fact] void MinIntMinus1() => Json5.Parse("-2147483649").Should().BeValue(int.MinValue - 1L);
 
             [Fact] void MaxInt() => Json5.Parse("2147483647").Should().BeValue(int.MaxValue);
             [Fact] void MaxIntPlus1() => Json5.Parse("2147483648").Should().BeValue(int.MaxValue + 1L);
 
-            [Fact] void MinLong() => Json5.Parse("-9223372036854775808").Should().BeValue((BigInteger)long.MinValue);
+            [Fact] void MinLong() => Json5.Parse("-9223372036854775808").Should().BeValue(long.MinValue);
             [Fact] void MinLongMinus1() => Json5.Parse("-9223372036854775809").Should().BeValue((BigInteger)long.MinValue - 1);
 
             [Fact] void MaxLong() => Json5.Parse("9223372036854775807").Should().BeValue(long.MaxValue);

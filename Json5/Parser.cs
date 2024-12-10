@@ -40,6 +40,9 @@ public static class Parser {
             | NumberLiteralOptions.AllowNaN,
             "number")
         .Map(nl => {
+            if (nl.IsDecimal) return ParseIntDec(nl);
+            if (nl.IsBinary) return ParseIntBin(nl);
+
             var lit = nl.GetStringWithoutPrefixes();
             var style = nl.ToNumberStyle();
             var sign = nl.GetSign();
@@ -55,6 +58,28 @@ public static class Parser {
         jtrue,
         jfalse,
         jnum);
+
+    private static JsonValue ParseIntDec(NumberLiteral nl) {
+        var lit = nl.String;
+        var cult = CultureInfo.InvariantCulture;
+        const NumberStyles style = NumberStyles.AllowLeadingSign;
+        return int.TryParse(lit, style, cult, out var @int) ? JsonValue.Create(@int)
+            : long.TryParse(lit, style, cult, out var @long) ? JsonValue.Create(@long)
+            : !nl.HasMinusSign && ulong.TryParse(lit, style, cult, out var @ulong) ? JsonValue.Create(@ulong)
+            : Int128.TryParse(lit, style, cult, out var @int128) ? JsonValue.Create(@int128)!
+            : JsonValue.Create(BigInteger.Parse(lit, style))!;
+    }
+
+    private static JsonValue ParseIntBin(NumberLiteral nl) {
+        var lit = nl.HasMinusSign || nl.HasPlusSign ? nl.String.AsSpan(3) : nl.String.AsSpan(2);
+        const NumberStyles style = NumberStyles.AllowBinarySpecifier;
+        var sign = nl.HasMinusSign ? -1 : 1;
+        var positive = sign > 0;
+        return int.TryParse(lit, style, null, out var @int) && @int > -1 ? JsonValue.Create(@int * sign)
+            : long.TryParse(lit, style, null, out var @long) && @long > -1 ? JsonValue.Create(@long * sign)
+            : positive && ulong.TryParse(lit, style, null, out var @ulong) ? JsonValue.Create(@ulong)
+            : JsonValue.Create(ParseBigInt(lit, style) * sign)!;
+    }
 
     private static int GetSign(this NumberLiteral nl) => nl.HasMinusSign ? -1 : 1;
 
