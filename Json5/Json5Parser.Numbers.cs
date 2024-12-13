@@ -7,9 +7,20 @@ using System.Text.Json.Nodes;
 using static FParsec.CharParsers;
 
 public static partial class Json5Parser {
+    private const NumberLiteralOptions numLiteralOpts =
+        NumberLiteralOptions.AllowBinary
+        | NumberLiteralOptions.AllowHexadecimal
+        | NumberLiteralOptions.AllowMinusSign
+        | NumberLiteralOptions.AllowPlusSign
+        | NumberLiteralOptions.AllowFraction
+        | NumberLiteralOptions.AllowFractionWOIntegerPart
+        | NumberLiteralOptions.AllowExponent
+        | NumberLiteralOptions.AllowInfinity
+        | NumberLiteralOptions.AllowNaN;
+
     private static readonly CultureInfo invCult = CultureInfo.InvariantCulture;
 
-    private static JsonNode? ParseNumberLiteral(NumberLiteral nl) => nl switch {
+    private static JsonNode? ParseNumLiteral(NumberLiteral nl) => nl switch {
         { IsDecimal: true } => ParseIntDec(nl),
         { IsHexadecimal: true } => ParseIntHex(nl),
         { IsBinary: true } => ParseIntBin(nl),
@@ -26,7 +37,7 @@ public static partial class Json5Parser {
             : positive && ulong.TryParse(s, sty, invCult, out var @ulong) ? JsonValue.Create(@ulong)
             : Int128.TryParse(s, sty, invCult, out var @int128) ? JsonValue.Create(@int128)!
             : positive && UInt128.TryParse(s, sty, invCult, out var uint128) ? JsonValue.Create(uint128)!
-            : JsonValue.Create(BigInteger.Parse(s, sty))!;
+            : JsonValue.Create(BigInteger.Parse(s, sty, invCult))!;
     }
 
     private static JsonValue ParseIntHex(NumberLiteral nl) {
