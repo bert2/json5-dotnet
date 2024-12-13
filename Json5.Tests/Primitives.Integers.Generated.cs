@@ -35,6 +35,9 @@ public partial class Primitives {
                 public bool Int(int x) => RoundTripDec(x) == x;
 
                 [Property(MaxTest = N)]
+                public Property UInt() => Prop.ForAll(@uint, x => RoundTripDec(x) == x);
+
+                [Property(MaxTest = N)]
                 public Property Long() => Prop.ForAll(@long, x => RoundTripDec(x) == x);
 
                 [Property(MaxTest = N)]
@@ -68,6 +71,16 @@ public partial class Primitives {
         }
 
         private static T Deserialize<T>(string s) => Json5.Parse(s)!.GetValue<T>();
+
+        // generates uint values greater than int.MaxValue
+        private static readonly Arbitrary<uint> @uint = Arb.Default.DoNotSizeUInt32()
+            .Generator
+            .Select(x => x.Item switch {
+                > int.MaxValue => x.Item,
+                > 0 => int.MaxValue + x.Item,
+                0 => int.MaxValue + 1U,
+            })
+            .ToArbitrary();
 
         // generates long values beyond the range of int
         private static readonly Arbitrary<long> @long = Arb.Default.DoNotSizeInt64()

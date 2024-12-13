@@ -39,19 +39,7 @@ public static class Parser {
             | NumberLiteralOptions.AllowInfinity
             | NumberLiteralOptions.AllowNaN,
             "number")
-        .Map(nl => {
-            if (nl.IsDecimal) return ParseIntDec(nl);
-            if (nl.IsBinary) return ParseIntBin(nl);
-
-            var lit = nl.GetStringWithoutPrefixes();
-            var style = nl.ToNumberStyle();
-            var sign = nl.GetSign();
-            var positive = sign > 0;
-            return int.TryParse(lit, style, null, out var @int) && @int > -1 ? CreateNode(@int * sign)
-                : long.TryParse(lit, style, null, out var @long) && @long > -1 ? CreateNode(@long * sign)
-                : positive && ulong.TryParse(lit, style, null, out var @ulong) ? CreateNode(@ulong)
-                : CreateNode(ParseBigInt(lit, style) * sign);
-        });
+        .Map(ParseNumberLiteral);
 
     private static readonly NodeP json5 = Choice(
         jnull,
@@ -59,45 +47,84 @@ public static class Parser {
         jfalse,
         jnum);
 
+    private static readonly CultureInfo invCult = CultureInfo.InvariantCulture;
+
+    private static JsonNode? ParseNumberLiteral(NumberLiteral nl) => nl switch {
+        { IsDecimal: true } => ParseIntDec(nl),
+        { IsBinary: true } => ParseIntBin(nl),
+        { IsHexadecimal: true } => ParseIntHex(nl),
+        _ => throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.")
+    };
+
     private static JsonValue ParseIntDec(NumberLiteral nl) {
-        var lit = nl.String;
-        var cult = CultureInfo.InvariantCulture;
-        const NumberStyles style = NumberStyles.AllowLeadingSign;
-        return int.TryParse(lit, style, cult, out var @int) ? JsonValue.Create(@int)
-            : long.TryParse(lit, style, cult, out var @long) ? JsonValue.Create(@long)
-            : !nl.HasMinusSign && ulong.TryParse(lit, style, cult, out var @ulong) ? JsonValue.Create(@ulong)
-            : Int128.TryParse(lit, style, cult, out var @int128) ? JsonValue.Create(@int128)!
-            : JsonValue.Create(BigInteger.Parse(lit, style))!;
+        var s = nl.String;
+        const NumberStyles sty = NumberStyles.AllowLeadingSign;
+        var positive = !nl.HasMinusSign;
+        return int.TryParse(s, sty, invCult, out var @int) ? JsonValue.Create(@int)
+            : positive && uint.TryParse(s, sty, invCult, out var @uint) ? JsonValue.Create(@uint)
+            : long.TryParse(s, sty, invCult, out var @long) ? JsonValue.Create(@long)
+            : positive && ulong.TryParse(s, sty, invCult, out var @ulong) ? JsonValue.Create(@ulong)
+            : Int128.TryParse(s, sty, invCult, out var @int128) ? JsonValue.Create(@int128)!
+            : positive && UInt128.TryParse(s, sty, invCult, out var uint128) ? JsonValue.Create(uint128)!
+            : JsonValue.Create(BigInteger.Parse(s, sty))!;
     }
 
     private static JsonValue ParseIntBin(NumberLiteral nl) {
-        var lit = nl.HasMinusSign || nl.HasPlusSign ? nl.String.AsSpan(3) : nl.String.AsSpan(2);
-        const NumberStyles style = NumberStyles.AllowBinarySpecifier;
+        var s = nl.HasMinusSign || nl.HasPlusSign ? nl.String.AsSpan(3) : nl.String.AsSpan(2);
         var sign = nl.HasMinusSign ? -1 : 1;
-        var positive = sign > 0;
-        return int.TryParse(lit, style, null, out var @int) && @int > -1 ? JsonValue.Create(@int * sign)
-            : long.TryParse(lit, style, null, out var @long) && @long > -1 ? JsonValue.Create(@long * sign)
-            : positive && ulong.TryParse(lit, style, null, out var @ulong) ? JsonValue.Create(@ulong)
-            : JsonValue.Create(ParseBigInt(lit, style) * sign)!;
+        return s.Length switch {
+            <= 32 => Parse4Bytes(s, sign, NumberStyles.AllowBinarySpecifier),
+            <= 64 => Parse8Bytes(s, sign, NumberStyles.AllowBinarySpecifier),
+            <= 128 => Parse16Bytes(s, sign, NumberStyles.AllowBinarySpecifier),
+            _ => ParseVarBytes(s, sign, NumberStyles.AllowBinarySpecifier)
+        };
     }
 
-    private static int GetSign(this NumberLiteral nl) => nl.HasMinusSign ? -1 : 1;
-
-    private static NumberStyles ToNumberStyle(this NumberLiteral nl) => nl switch {
-      { IsBinary: true } => NumberStyles.AllowBinarySpecifier,
-      { IsHexadecimal: true } => NumberStyles.AllowHexSpecifier,
-        _ => NumberStyles.None
-    };
-
-    private static ReadOnlySpan<char> GetStringWithoutPrefixes(this NumberLiteral nl) {
-        var signed = nl.HasMinusSign || nl.HasPlusSign;
-        var prefixed = !nl.IsDecimal;
-        var start = (signed ? 1 : 0) + (prefixed ? 2 : 0);
-        return nl.String.AsSpan(start);
+    private static JsonValue ParseIntHex(NumberLiteral nl) {
+        var s = nl.HasMinusSign || nl.HasPlusSign ? nl.String.AsSpan(3) : nl.String.AsSpan(2);
+        var sign = nl.HasMinusSign ? -1 : 1;
+        return s.Length switch {
+            <= 8 => Parse4Bytes(s, sign, NumberStyles.AllowHexSpecifier),
+            <= 16 => Parse8Bytes(s, sign, NumberStyles.AllowHexSpecifier),
+            <= 32 => Parse16Bytes(s, sign, NumberStyles.AllowHexSpecifier),
+            _ => ParseVarBytes(s, sign, NumberStyles.AllowHexSpecifier)
+        };
     }
 
-    private static JsonNode? CreateNode<T>(T v) => JsonValue.Create(v);
+    private static JsonValue Parse4Bytes(ReadOnlySpan<char> s, int sign, NumberStyles style) {
+        var @int = int.Parse(s, style, invCult);
+
+        if (sign < 0 && @int == int.MinValue)
+            return JsonValue.Create(int.MinValue);
+        else if (@int < 0)
+            return sign < 0 ? JsonValue.Create(unchecked((uint)@int) * sign) : JsonValue.Create(unchecked((uint)@int));
+        else
+            return JsonValue.Create(@int * sign)!;
+    }
+
+    private static JsonValue Parse8Bytes(ReadOnlySpan<char> s, int sign, NumberStyles style) {
+        var @long = long.Parse(s, style, invCult);
+
+        if (sign < 0 && @long == long.MinValue)
+            return JsonValue.Create(long.MinValue);
+        else if (@long < 0)
+            return sign < 0 ? JsonValue.Create(unchecked((ulong)@long) * (Int128)sign)! : JsonValue.Create(unchecked((ulong)@long));
+        else
+            return JsonValue.Create(@long * sign)!;
+    }
+
+    private static JsonValue Parse16Bytes(ReadOnlySpan<char> s, int sign, NumberStyles style) {
+        var int128 = Int128.Parse(s, style, invCult);
+
+        if (sign < 0 && int128 == Int128.MinValue)
+            return JsonValue.Create(Int128.MinValue)!;
+        else if (int128 < 0)
+            return sign < 0 ? JsonValue.Create(unchecked((UInt128)int128) * (BigInteger)sign)! : JsonValue.Create(unchecked((UInt128)int128))!;
+        else
+            return JsonValue.Create(int128 * sign)!;
+    }
 
     // Prepends 0 so the most significant bit is always 0 and the resulting bigint will always be positive.
-    private static BigInteger ParseBigInt(ReadOnlySpan<char> lit, NumberStyles style) => BigInteger.Parse($"0{lit}", style);
+    static JsonValue ParseVarBytes(ReadOnlySpan<char> s, int sign, NumberStyles style)
+        => JsonValue.Create(BigInteger.Parse($"0{s}", style, invCult) * sign)!;
 }
