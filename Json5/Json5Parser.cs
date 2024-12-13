@@ -16,7 +16,7 @@ namespace Json5.Parsing;
 
 using NodeP = FSharpFunc<CharStream<Unit>, Reply<JsonNode?>>;
 
-public static partial class Parser {
+public static partial class Json5Parser {
     public static ParserResult<JsonNode?, Unit> Parse(string json) => json5.Run(json);
 
     private static readonly NodeP jnull = StringP<JsonNode?>("null", null).Lbl("null");

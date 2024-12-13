@@ -6,7 +6,7 @@ using System.Text.Json.Nodes;
 
 using static FParsec.CharParsers;
 
-public static partial class Parser {
+public static partial class Json5Parser {
     private static readonly CultureInfo invCult = CultureInfo.InvariantCulture;
 
     private static JsonNode? ParseNumberLiteral(NumberLiteral nl) => nl switch {
