@@ -7,7 +7,7 @@ using System.Numerics;
 public partial class Primitives {
     [Fact] public void Null() => Json5.Parse("null").Should().BeNull();
 
-    public class Booleans {
+    public class Boolean {
         [Fact] void True() => Json5.Parse("true").Should().Be(true);
         [Fact] void False() => Json5.Parse("false").Should().Be(false);
     }
