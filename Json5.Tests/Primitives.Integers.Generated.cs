@@ -12,13 +12,13 @@ public partial class Primitives {
         
         public partial class Bin {
             public class Generated {
-                [Property(MaxTest = N)] public bool Int(int x) => RoundTripBin(x) == x;
-                [Property(MaxTest = N)] public Property UInt() => Prop.ForAll(@uint, x => RoundTripBin(x) == x);
-                [Property(MaxTest = N)] public Property Long() => Prop.ForAll(@long, x => RoundTripBin(x) == x);
-                [Property(MaxTest = N)] public Property ULong() => Prop.ForAll(@ulong, x => RoundTripBin(x) == x);
-                [Property(MaxTest = N)] public Property Int128() => Prop.ForAll(int128, x => RoundTripBin(x) == x);
-                [Property(MaxTest = N)] public Property UInt128() => Prop.ForAll(uint128, x => RoundTripBin(x) == x);
-                [Property(MaxTest = N)] public Property BigInt() => Prop.ForAll(bigint, x => RoundTripBin(x) == x);
+                [Property(MaxTest = N)] bool Int(int x) => RoundTripBin(x) == x;
+                [Property(MaxTest = N)] Property UInt() => Prop.ForAll(@uint, x => RoundTripBin(x) == x);
+                [Property(MaxTest = N)] Property Long() => Prop.ForAll(@long, x => RoundTripBin(x) == x);
+                [Property(MaxTest = N)] Property ULong() => Prop.ForAll(@ulong, x => RoundTripBin(x) == x);
+                [Property(MaxTest = N)] Property Int128() => Prop.ForAll(int128, x => RoundTripBin(x) == x);
+                [Property(MaxTest = N)] Property UInt128() => Prop.ForAll(uint128, x => RoundTripBin(x) == x);
+                [Property(MaxTest = N)] Property BigInt() => Prop.ForAll(bigint, x => RoundTripBin(x) == x);
 
                 private static T RoundTripBin<T>(T x)
                     where T : IComparisonOperators<T, T, bool>, IAdditiveIdentity<T, T>, IUnaryNegationOperators<T, T>
@@ -28,13 +28,13 @@ public partial class Primitives {
 
         public partial class Dec {
             public class Generated {
-                [Property(MaxTest = N)] public bool Int(int x) => RoundTripDec(x) == x;
-                [Property(MaxTest = N)] public Property UInt() => Prop.ForAll(@uint, x => RoundTripDec(x) == x);
-                [Property(MaxTest = N)] public Property Long() => Prop.ForAll(@long, x => RoundTripDec(x) == x);
-                [Property(MaxTest = N)] public Property ULong() => Prop.ForAll(@ulong, x => RoundTripDec(x) == x);
-                [Property(MaxTest = N)] public Property Int128() => Prop.ForAll(int128, x => RoundTripDec(x) == x);
-                [Property(MaxTest = N)] public Property UInt128() => Prop.ForAll(uint128, x => RoundTripDec(x) == x);
-                [Property(MaxTest = N)] public Property BigInt() => Prop.ForAll(bigint, x => RoundTripDec(x) == x);
+                [Property(MaxTest = N)] bool Int(int x) => RoundTripDec(x) == x;
+                [Property(MaxTest = N)] Property UInt() => Prop.ForAll(@uint, x => RoundTripDec(x) == x);
+                [Property(MaxTest = N)] Property Long() => Prop.ForAll(@long, x => RoundTripDec(x) == x);
+                [Property(MaxTest = N)] Property ULong() => Prop.ForAll(@ulong, x => RoundTripDec(x) == x);
+                [Property(MaxTest = N)] Property Int128() => Prop.ForAll(int128, x => RoundTripDec(x) == x);
+                [Property(MaxTest = N)] Property UInt128() => Prop.ForAll(uint128, x => RoundTripDec(x) == x);
+                [Property(MaxTest = N)] Property BigInt() => Prop.ForAll(bigint, x => RoundTripDec(x) == x);
                 
                 private static T RoundTripDec<T>(T x) => Deserialize<T>($"{x:d}");
             }
@@ -42,13 +42,13 @@ public partial class Primitives {
 
         public partial class Hex {
             public class Generated {
-                [Property(MaxTest = N)] public bool Int(int x) => RoundTripHex(x) == x;
-                [Property(MaxTest = N)] public Property UInt() => Prop.ForAll(@uint, x => RoundTripHex(x) == x);
-                [Property(MaxTest = N)] public Property Long() => Prop.ForAll(@long, x => RoundTripHex(x) == x);
-                [Property(MaxTest = N)] public Property ULong() => Prop.ForAll(@ulong, x => RoundTripHex(x) == x);
-                [Property(MaxTest = N)] public Property Int128() => Prop.ForAll(int128, x => RoundTripHex(x) == x);
-                [Property(MaxTest = N)] public Property UInt128() => Prop.ForAll(uint128, x => RoundTripHex(x) == x);
-                [Property(MaxTest = N)] public Property BigInt() => Prop.ForAll(bigint, x => RoundTripHex(x) == x);
+                [Property(MaxTest = N)] bool Int(int x) => RoundTripHex(x) == x;
+                [Property(MaxTest = N)] Property UInt() => Prop.ForAll(@uint, x => RoundTripHex(x) == x);
+                [Property(MaxTest = N)] Property Long() => Prop.ForAll(@long, x => RoundTripHex(x) == x);
+                [Property(MaxTest = N)] Property ULong() => Prop.ForAll(@ulong, x => RoundTripHex(x) == x);
+                [Property(MaxTest = N)] Property Int128() => Prop.ForAll(int128, x => RoundTripHex(x) == x);
+                [Property(MaxTest = N)] Property UInt128() => Prop.ForAll(uint128, x => RoundTripHex(x) == x);
+                [Property(MaxTest = N)] Property BigInt() => Prop.ForAll(bigint, x => RoundTripHex(x) == x);
 
                 private static T RoundTripHex<T>(T x)
                     where T : IComparisonOperators<T, T, bool>, IAdditiveIdentity<T, T>, IUnaryNegationOperators<T, T>
@@ -90,7 +90,7 @@ public partial class Primitives {
             })
             .ToArbitrary();
 
-        // generates int128 values beyond the range [long.MinValue .. ulong.MaxValue]
+        // generates Int128 values beyond the range [long.MinValue .. ulong.MaxValue]
         private static readonly Arbitrary<Int128> int128 = ArbMap.Default.ArbFor<Int128>()
             .Generator
             .Select(x => {
@@ -102,7 +102,7 @@ public partial class Primitives {
             })
             .ToArbitrary();
 
-        // generates uint128 values greater than Int128.MaxValue
+        // generates UInt128 values greater than Int128.MaxValue
         private static readonly Arbitrary<UInt128> uint128 = ArbMap.Default.ArbFor<UInt128>()
             .Generator
             .Select(x => {

@@ -5,7 +5,9 @@ using FluentAssertions.Execution;
 
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 
 public static class AssertionExtensions {
     public static JsonNodeAssertions Should(this JsonNode? actualValue) => new(actualValue!);
@@ -13,13 +15,14 @@ public static class AssertionExtensions {
 
 public record JsonNodeAssertions(JsonNode Subject) {
     private const string identifier = nameof(JsonNode);
+    private static JsonSerializerOptions Opts => new() { NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals };
 
     public AndConstraint<JsonNodeAssertions> BeNull(string because = "", params object[] becauseArgs) {
         Execute.Assertion
             .ForCondition(Subject is null)
             .BecauseOf(because, becauseArgs)
             .WithDefaultIdentifier(identifier)
-            .FailWith("Expected {context} to be <null>{reason}, but found {0}.", Subject?.ToString());
+            .FailWith("Expected {context} to be <null>{reason}, but found {0}.", Subject?.ToJsonString(Opts));
 
         return new AndConstraint<JsonNodeAssertions>(this);
     }
@@ -34,8 +37,20 @@ public record JsonNodeAssertions(JsonNode Subject) {
         return new AndConstraint<JsonNodeAssertions>(this);
     }
 
+    public AndConstraint<JsonNodeAssertions> BeNaN(string because = "", params object[] becauseArgs) {
+        Execute.Assertion
+            .ForCondition(double.IsNaN(Subject.GetValue<double>()))
+            .BecauseOf(because, becauseArgs)
+            .WithDefaultIdentifier(identifier)
+            .FailWith(
+                "Expected {context} to be <null>{reason}, but found {0}.",
+                Subject?.ToJsonString(Opts));
+
+        return new AndConstraint<JsonNodeAssertions>(this);
+    }
+
     public AndConstraint<JsonNodeAssertions> Be(JsonNode? expected, string because = "", params object[] becauseArgs) {
-        var (actualJson, expectedJson) = (Subject?.ToString(), expected?.ToString());
+        var (actualJson, expectedJson) = (Subject?.ToJsonString(Opts), expected?.ToJsonString(Opts));
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
             .ForCondition(actualJson == expectedJson)

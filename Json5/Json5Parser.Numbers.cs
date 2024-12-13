@@ -21,6 +21,9 @@ public static partial class Json5Parser {
     private static readonly CultureInfo invCult = CultureInfo.InvariantCulture;
 
     private static JsonNode? ParseNumLiteral(NumberLiteral nl) => nl switch {
+        { IsInfinity: true, HasMinusSign: true } => JsonValue.Create(double.NegativeInfinity),
+        { IsInfinity: true } => JsonValue.Create(double.PositiveInfinity),
+        { IsNaN: true } => JsonValue.Create(double.NaN),
         { IsDecimal: true } => ParseIntDec(nl),
         { IsHexadecimal: true } => ParseIntHex(nl),
         { IsBinary: true } => ParseIntBin(nl),

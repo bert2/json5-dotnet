@@ -5,7 +5,7 @@ namespace Json5.Tests;
 using System.Numerics;
 
 public partial class Primitives {
-    [Fact] public void Null() => Json5.Parse("null").Should().BeNull();
+    [Fact] void Null() => Json5.Parse("null").Should().BeNull();
 
     public class Boolean {
         [Fact] void True() => Json5.Parse("true").Should().Be(true);
@@ -112,6 +112,23 @@ public partial class Primitives {
 
             [Fact] void MaxUInt128() => Json5.Parse("0xffffffffffffffffffffffffffffffff").Should().BeValue(UInt128.MaxValue);
             [Fact] void MaxUInt128Plus1() => Json5.Parse("0x100000000000000000000000000000000").Should().BeValue((BigInteger)UInt128.MaxValue + 1);
+        }
+    }
+
+    public static class Floats {
+        public class Infinity {
+            [Fact] void Positive() => Json5.Parse("Infinity").Should().BeValue(double.PositiveInfinity);
+            [Fact] void Negative() => Json5.Parse("-Infinity").Should().BeValue(double.NegativeInfinity);
+            [Fact] void ExplicitlyPositive() => Json5.Parse("+Infinity").Should().BeValue(double.PositiveInfinity);
+            [Fact] void Short() => Json5.Parse("Inf").Should().BeValue(double.PositiveInfinity);
+            [Fact] void UpperCase() => Json5.Parse("INFINITY").Should().BeValue(double.PositiveInfinity);
+            [Fact] void LowerCase() => Json5.Parse("infinity").Should().BeValue(double.PositiveInfinity);
+        }
+
+        public class NaN {
+            [Fact] void MixedCase() => Json5.Parse("NaN").Should().BeNaN();
+            [Fact] void UpperCase() => Json5.Parse("NAN").Should().BeNaN();
+            [Fact] void LowerCase() => Json5.Parse("nan").Should().BeNaN();
         }
     }
 }
