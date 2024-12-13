@@ -8,8 +8,6 @@ using System.Numerics;
 
 public partial class Primitives {
     public static partial class Integers {
-        private const int N = 100_000;
-        
         public partial class Bin {
             public class Generated {
                 [Property(MaxTest = N)] bool Int(int x) => RoundTripBin(x) == x;

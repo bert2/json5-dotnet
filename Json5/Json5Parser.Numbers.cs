@@ -16,7 +16,9 @@ public static partial class Json5Parser {
         | NumberLiteralOptions.AllowFractionWOIntegerPart
         | NumberLiteralOptions.AllowExponent
         | NumberLiteralOptions.AllowInfinity
-        | NumberLiteralOptions.AllowNaN;
+        | NumberLiteralOptions.AllowNaN
+        | NumberLiteralOptions.AllowSuffix
+        | NumberLiteralOptions.IncludeSuffixCharsInString;
 
     private static readonly CultureInfo invCult = CultureInfo.InvariantCulture;
 
@@ -24,11 +26,32 @@ public static partial class Json5Parser {
         { IsInfinity: true, HasMinusSign: true } => JsonValue.Create(double.NegativeInfinity),
         { IsInfinity: true } => JsonValue.Create(double.PositiveInfinity),
         { IsNaN: true } => JsonValue.Create(double.NaN),
+        { SuffixLength: > 0 } => ParseMoney(nl),
+        { IsInteger: false } => ParseFloat(nl),
         { IsDecimal: true } => ParseIntDec(nl),
         { IsHexadecimal: true } => ParseIntHex(nl),
         { IsBinary: true } => ParseIntBin(nl),
         _ => throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.")
     };
+
+    private static JsonValue ParseMoney(NumberLiteral nl) {
+        if (nl.SuffixLength > 1 || nl is { SuffixChar1: not 'm' and not 'M' })
+            throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.");
+
+        var s = nl.String.AsSpan(..^1);
+        const NumberStyles sty = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
+        return decimal.TryParse(s, sty, invCult, out var @decimal)
+            ? JsonValue.Create(@decimal)
+            : throw new FormatException($"Number literal {nl.String} could not be parsed as a decimal value.");
+    }
+
+    private static JsonValue ParseFloat(NumberLiteral nl) {
+        var s = nl.String;
+        const NumberStyles sty = NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent | NumberStyles.AllowLeadingSign;
+        return double.TryParse(s, sty, invCult, out var @double)
+            ? JsonValue.Create(@double)
+            : throw new FormatException($"Number literal {nl.String} could not be parsed as a double value.");
+    }
 
     private static JsonValue ParseIntDec(NumberLiteral nl) {
         var s = nl.String;

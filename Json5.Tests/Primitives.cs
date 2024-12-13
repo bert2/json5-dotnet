@@ -2,7 +2,11 @@
 
 namespace Json5.Tests;
 
+using FluentAssertions;
+
 using System.Numerics;
+
+using static FluentAssertions.FluentActions;
 
 public partial class Primitives {
     [Fact] void Null() => Json5.Parse("null").Should().BeNull();
@@ -115,14 +119,15 @@ public partial class Primitives {
         }
     }
 
-    public static class Floats {
+    public partial class Floats {
         public class Infinity {
             [Fact] void Positive() => Json5.Parse("Infinity").Should().BeValue(double.PositiveInfinity);
             [Fact] void Negative() => Json5.Parse("-Infinity").Should().BeValue(double.NegativeInfinity);
-            [Fact] void ExplicitlyPositive() => Json5.Parse("+Infinity").Should().BeValue(double.PositiveInfinity);
-            [Fact] void Short() => Json5.Parse("Inf").Should().BeValue(double.PositiveInfinity);
+            [Fact] void ExplicitPositive() => Json5.Parse("+Infinity").Should().BeValue(double.PositiveInfinity);
+            [Fact] void Short() => Json5.Parse("+Inf").Should().BeValue(double.PositiveInfinity);
+            [Fact] void Symbol() => Json5.Parse("-∞").Should().BeValue(double.NegativeInfinity);
             [Fact] void UpperCase() => Json5.Parse("INFINITY").Should().BeValue(double.PositiveInfinity);
-            [Fact] void LowerCase() => Json5.Parse("infinity").Should().BeValue(double.PositiveInfinity);
+            [Fact] void LowerCase() => Json5.Parse("-infinity").Should().BeValue(double.NegativeInfinity);
         }
 
         public class NaN {
@@ -130,5 +135,21 @@ public partial class Primitives {
             [Fact] void UpperCase() => Json5.Parse("NAN").Should().BeNaN();
             [Fact] void LowerCase() => Json5.Parse("nan").Should().BeNaN();
         }
+
+        [Fact] void MinDouble() => Json5.Parse("-1.7976931348623157E+308").Should().BeValue(double.MinValue);
+        [Fact] void MaxDouble() => Json5.Parse("1.7976931348623157E+308").Should().BeValue(double.MaxValue);
+        [Fact] void Epsilon() => Json5.Parse("5E-324").Should().BeValue(double.Epsilon);
+    }
+
+    public partial class Money {
+        [Fact] void RequiresSuffix() => Json5.Parse("0.123456789m").Should().BeValue(0.123456789m);
+        [Fact] void ParsesDoubleWithoutSuffix() => Json5.Parse("0.3333333333333333333333333333").Should().BeValue(0.3333333333333333d);
+        [Fact] void IgnoresSuffixCase() => Json5.Parse("1.23m").Should().Be(Json5.Parse("1.23M"));
+        [Fact] void OnlyMSuffixIsAllowed() => Invoking(() => Json5.Parse("123L")).Should().Throw<NotSupportedException>().WithMessage("Format of the number literal 123L is not supported.");
+
+        [Fact] void MinDecimal() => Json5.Parse("-79228162514264337593543950335m").Should().BeValue(decimal.MinValue);
+        [Fact] void MaxDecimal() => Json5.Parse("79228162514264337593543950335m").Should().BeValue(decimal.MaxValue);
+        [Fact] void Epsilon() => Json5.Parse("0.0000000000000000000000000001m").Should().BeValue(0.0000000000000000000000000001m);
+        [Fact] void SmallerThanEpsilon() => Json5.Parse("0.00000000000000000000000000001m").Should().BeValue(0m);
     }
 }
