@@ -136,6 +136,11 @@ public partial class Primitives {
             [Fact] void LowerCase() => Json5.Parse("nan").Should().BeNaN();
         }
 
+        [Fact] void WithoutIntegerPart() => Json5.Parse(".0123").Should().BeValue(.0123);
+        [Fact] void WithoutFractionDigits() => Json5.Parse("1.").Should().BeValue(1d);
+        [Fact] void WithExponent() => Json5.Parse("1.2e3").Should().BeValue(1.2e3);
+        [Fact] void IgnoresExponentIndicatorCase() => Json5.Parse("1e-3").Should().Be(Json5.Parse("1E-3"));
+
         [Fact] void MinDouble() => Json5.Parse("-1.7976931348623157E+308").Should().BeValue(double.MinValue);
         [Fact] void MaxDouble() => Json5.Parse("1.7976931348623157E+308").Should().BeValue(double.MaxValue);
         [Fact] void Epsilon() => Json5.Parse("5E-324").Should().BeValue(double.Epsilon);
@@ -156,6 +161,53 @@ public partial class Primitives {
     public class Strings {
         [Fact] void DoubleQuoted() => Json5.Parse("\"strings are 'fun'\"").Should().BeValue("strings are 'fun'");
         [Fact] void SingleQuoted() => Json5.Parse("'strings are \"fun\"'").Should().BeValue("strings are \"fun\"");
-        [Fact] void EscapedTab() => Json5.Parse(@"'space\tcreated'").Should().BeValue("space\tcreated");
+        [Fact] void NoUnescapedLineTerminator() => Invoking(() => Json5.Parse("\"let's have a break\nshall we\"")).Should().Throw<Exception>().WithMessage(
+            """
+            Error in Ln: 1 Col: 1
+            "let's have a break
+            ^
+            Expecting: bool, null, number or string
+
+            string could not be parsed because:
+              Error in Ln: 1 Col: 20
+              "let's have a break
+                                 ^
+              Note: The error occurred at the end of the line.
+              Expecting: any char (except ", \, or newline), escape sequence or '"'
+            
+            """);
+
+        public class EscapeSequences {
+            [Fact] void SingleQuote() => Json5.Parse(@"'let\'s go'").Should().BeValue("let's go");
+            [Fact] void DoubleQuote() => Json5.Parse("\"...\\\"go\\\" where?\"").Should().BeValue("...\"go\" where?");
+            [Fact] void Backslash() => Json5.Parse(@"'escape with \\'").Should().BeValue(@"escape with \");
+            [Fact] void Backspace() => Json5.Parse(@"'go back with \b'").Should().BeValue("go back with \b");
+            [Fact] void FormFeed() => Json5.Parse(@"'next page with \f'").Should().BeValue("next page with \f");
+            [Fact] void Newline() => Json5.Parse(@"'break\nme'").Should().BeValue("break\nme");
+            [Fact] void CarriageReturn() => Json5.Parse(@"'yea \r whatever'").Should().BeValue("yea \r whatever");
+            [Fact] void Tab() => Json5.Parse(@"'space\tcreated'").Should().BeValue("space\tcreated");
+            [Fact] void VerticalTab() => Json5.Parse(@"'space\vcreated'").Should().BeValue("space\vcreated");
+            [Fact] void NullChar() => Json5.Parse(@"'terminate me\0'").Should().BeValue("terminate me\0");
+            [Fact] void Unknown() => Invoking(() => Json5.Parse(@"'\?'")).Should().Throw<Exception>().WithMessage(
+                """
+                Error in Ln: 1 Col: 1
+                '\?'
+                ^
+                Expecting: bool, null, number or string
+
+                string could not be parsed because:
+                  Error in Ln: 1 Col: 2
+                  '\?'
+                   ^
+                  Expecting: any char (except ', \, or newline) or escape sequence
+
+                  escape sequence could not be parsed because:
+                    Error in Ln: 1 Col: 3
+                    '\?'
+                      ^
+                    Expecting: any char in ‘bfnrtv0'"\’
+                
+                """);
+        }
     }
 }

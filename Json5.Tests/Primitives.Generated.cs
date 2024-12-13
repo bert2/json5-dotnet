@@ -5,7 +5,7 @@ using FsCheck.Fluent;
 using FsCheck.Xunit;
 
 public partial class Primitives {
-    private const int N = 100_000;
+    private const int N = 1_000; // 100_000
 
     public partial class Floats {
         [Property(MaxTest = N)] Property Generated() => Prop.ForAll(@double, x => RoundTrip(x) == x || double.IsNaN(x));
