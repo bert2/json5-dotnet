@@ -11,7 +11,7 @@ using static FluentAssertions.FluentActions;
 public partial class Primitives {
     [Fact] void Null() => Json5.Parse("null").Should().BeNull();
 
-    public class Boolean {
+    public class Booleans {
         [Fact] void True() => Json5.Parse("true").Should().Be(true);
         [Fact] void False() => Json5.Parse("false").Should().Be(false);
     }
@@ -151,5 +151,11 @@ public partial class Primitives {
         [Fact] void MaxDecimal() => Json5.Parse("79228162514264337593543950335m").Should().BeValue(decimal.MaxValue);
         [Fact] void Epsilon() => Json5.Parse("0.0000000000000000000000000001m").Should().BeValue(0.0000000000000000000000000001m);
         [Fact] void SmallerThanEpsilon() => Json5.Parse("0.00000000000000000000000000001m").Should().BeValue(0m);
+    }
+
+    public class Strings {
+        [Fact] void DoubleQuoted() => Json5.Parse("\"strings are 'fun'\"").Should().BeValue("strings are 'fun'");
+        [Fact] void SingleQuoted() => Json5.Parse("'strings are \"fun\"'").Should().BeValue("strings are \"fun\"");
+        [Fact] void EscapedTab() => Json5.Parse(@"'space\tcreated'").Should().BeValue("space\tcreated");
     }
 }

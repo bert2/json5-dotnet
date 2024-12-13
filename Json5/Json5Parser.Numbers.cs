@@ -23,9 +23,9 @@ public static partial class Json5Parser {
     private static readonly CultureInfo invCult = CultureInfo.InvariantCulture;
 
     private static JsonNode? ParseNumLiteral(NumberLiteral nl) => nl switch {
-        { IsInfinity: true, HasMinusSign: true } => JsonValue.Create(double.NegativeInfinity),
-        { IsInfinity: true } => JsonValue.Create(double.PositiveInfinity),
-        { IsNaN: true } => JsonValue.Create(double.NaN),
+        { IsInfinity: true, HasMinusSign: true } => double.NegativeInfinity,
+        { IsInfinity: true } => double.PositiveInfinity,
+        { IsNaN: true } => double.NaN,
         { SuffixLength: > 0 } => ParseMoney(nl),
         { IsInteger: false } => ParseFloat(nl),
         { IsDecimal: true } => ParseIntDec(nl),
@@ -34,39 +34,39 @@ public static partial class Json5Parser {
         _ => throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.")
     };
 
-    private static JsonValue ParseMoney(NumberLiteral nl) {
+    private static JsonNode ParseMoney(NumberLiteral nl) {
         if (nl.SuffixLength > 1 || nl is { SuffixChar1: not 'm' and not 'M' })
             throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.");
 
         var s = nl.String.AsSpan(..^1);
         const NumberStyles sty = NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign;
         return decimal.TryParse(s, sty, invCult, out var @decimal)
-            ? JsonValue.Create(@decimal)
+            ? @decimal
             : throw new FormatException($"Number literal {nl.String} could not be parsed as a decimal value.");
     }
 
-    private static JsonValue ParseFloat(NumberLiteral nl) {
+    private static JsonNode ParseFloat(NumberLiteral nl) {
         var s = nl.String;
         const NumberStyles sty = NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent | NumberStyles.AllowLeadingSign;
         return double.TryParse(s, sty, invCult, out var @double)
-            ? JsonValue.Create(@double)
+            ? @double
             : throw new FormatException($"Number literal {nl.String} could not be parsed as a double value.");
     }
 
-    private static JsonValue ParseIntDec(NumberLiteral nl) {
+    private static JsonNode ParseIntDec(NumberLiteral nl) {
         var s = nl.String;
         const NumberStyles sty = NumberStyles.AllowLeadingSign;
         var positive = !nl.HasMinusSign;
-        return int.TryParse(s, sty, invCult, out var @int) ? JsonValue.Create(@int)
-            : positive && uint.TryParse(s, sty, invCult, out var @uint) ? JsonValue.Create(@uint)
-            : long.TryParse(s, sty, invCult, out var @long) ? JsonValue.Create(@long)
-            : positive && ulong.TryParse(s, sty, invCult, out var @ulong) ? JsonValue.Create(@ulong)
+        return int.TryParse(s, sty, invCult, out var @int) ? @int
+            : positive && uint.TryParse(s, sty, invCult, out var @uint) ? @uint
+            : long.TryParse(s, sty, invCult, out var @long) ? @long
+            : positive && ulong.TryParse(s, sty, invCult, out var @ulong) ? @ulong
             : Int128.TryParse(s, sty, invCult, out var @int128) ? JsonValue.Create(@int128)!
             : positive && UInt128.TryParse(s, sty, invCult, out var uint128) ? JsonValue.Create(uint128)!
             : JsonValue.Create(BigInteger.Parse(s, sty, invCult))!;
     }
 
-    private static JsonValue ParseIntHex(NumberLiteral nl) {
+    private static JsonNode ParseIntHex(NumberLiteral nl) {
         var s = nl.HasMinusSign || nl.HasPlusSign ? nl.String.AsSpan(3) : nl.String.AsSpan(2);
         var sign = nl.HasMinusSign ? -1 : 1;
         const NumberStyles sty = NumberStyles.AllowHexSpecifier;
@@ -78,7 +78,7 @@ public static partial class Json5Parser {
         };
     }
 
-    private static JsonValue ParseIntBin(NumberLiteral nl) {
+    private static JsonNode ParseIntBin(NumberLiteral nl) {
         var s = nl.HasMinusSign || nl.HasPlusSign ? nl.String.AsSpan(3) : nl.String.AsSpan(2);
         var sign = nl.HasMinusSign ? -1 : 1;
         const NumberStyles sty = NumberStyles.AllowBinarySpecifier;
@@ -90,27 +90,27 @@ public static partial class Json5Parser {
         };
     }
 
-    private static JsonValue Parse4Bytes(ReadOnlySpan<char> s, int sign, NumberStyles style) {
+    private static JsonNode Parse4Bytes(ReadOnlySpan<char> s, int sign, NumberStyles style) {
         var @int = int.Parse(s, style, invCult);
         return sign switch {
-            < 0 when @int == int.MinValue => JsonValue.Create(int.MinValue),
-            < 0 when @int < 0 => JsonValue.Create((uint)@int * sign),
-            > 0 when @int < 0 => JsonValue.Create((uint)@int),
-            _ => JsonValue.Create(@int * sign)
+            < 0 when @int == int.MinValue => int.MinValue,
+            < 0 when @int < 0 => (uint)@int * sign,
+            > 0 when @int < 0 => (uint)@int,
+            _ => (JsonNode)(@int * sign)
         };
     }
 
-    private static JsonValue Parse8Bytes(ReadOnlySpan<char> s, int sign, NumberStyles style) {
+    private static JsonNode Parse8Bytes(ReadOnlySpan<char> s, int sign, NumberStyles style) {
         var @long = long.Parse(s, style, invCult);
         return sign switch {
-            < 0 when @long == long.MinValue => JsonValue.Create(long.MinValue),
+            < 0 when @long == long.MinValue => long.MinValue,
             < 0 when @long < 0 => JsonValue.Create((ulong)@long * (Int128)sign)!,
-            > 0 when @long < 0 => JsonValue.Create((ulong)@long),
-            _ => JsonValue.Create(@long * sign)
+            > 0 when @long < 0 => (ulong)@long,
+            _ => @long * sign
         };
     }
 
-    private static JsonValue Parse16Bytes(ReadOnlySpan<char> s, int sign, NumberStyles style) {
+    private static JsonNode Parse16Bytes(ReadOnlySpan<char> s, int sign, NumberStyles style) {
         var int128 = Int128.Parse(s, style, invCult);
         return sign switch {
             < 0 when int128 == Int128.MinValue => JsonValue.Create(Int128.MinValue)!,
@@ -121,6 +121,6 @@ public static partial class Json5Parser {
     }
 
     // Prepends 0 so the most significant bit is never set and the resulting bigint will always be positive.
-    static JsonValue ParseVarBytes(ReadOnlySpan<char> s, int sign, NumberStyles style)
+    static JsonNode ParseVarBytes(ReadOnlySpan<char> s, int sign, NumberStyles style)
         => JsonValue.Create(BigInteger.Parse($"0{s}", style, invCult) * sign)!;
 }

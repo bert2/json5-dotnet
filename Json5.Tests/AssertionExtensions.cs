@@ -4,7 +4,6 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 
 using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -61,13 +60,13 @@ public record JsonNodeAssertions(JsonNode Subject) {
     }
 
     public AndConstraint<JsonNodeAssertions> BeValue<T>(T expected, string because = "", params object[] becauseArgs)
-        where T: IEqualityOperators<T, T, bool> {
-        var actualValue = Subject.GetValue<T>();
+        where T: IEquatable<T> {
+        var actual = Subject.GetValue<T>();
         Execute.Assertion
             .BecauseOf(because, becauseArgs)
-            .ForCondition(actualValue == expected)
+            .ForCondition(actual.Equals(expected))
             .WithDefaultIdentifier(identifier)
-            .FailWith("Expected {context} to be {0}{reason}, but found {1}.", expected, actualValue);
+            .FailWith("Expected {context} to be {0}{reason}, but found {1}.", expected, actual);
 
         return new AndConstraint<JsonNodeAssertions>(this);
     }
