@@ -12,8 +12,10 @@ using static FParsec.CSharp.PrimitivesCS;
 namespace Json5.Parsing;
 
 using Chars = FParsec.CharStream<Unit>;
+using UnitR = FParsec.Reply<Unit>;
 using CharR = FParsec.Reply<char>;
 using StringR = FParsec.Reply<string>;
+using UnitP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<Unit>>;
 using CharP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<char>>;
 using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 using JsonNodeP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<JsonNode?>>;
@@ -35,39 +37,55 @@ public static partial class Json5Parser {
 
     private static readonly CharP escapableChar = AnyOf("nt'\"\\\nrf0bv").Lbl("any char in ‘nt'\"\\rf0bv’ or newline");
 
-    private static readonly StringP escapedChar = CharP('\\').AndR(escapableChar)
-        .Map(c => c switch {
-            'n' => "\n",
-            't' => "\t",
-            '\n' => "",
-            'r' => "\r",
-            'f' => "\f",
-            '0' => "\0",
-            'b' => "\b",
-            'v' => "\v",
-            _ => c.ToString()
+    private static UnitP SkipIndent(long col) => SkipMany(
+        PositionP
+        .And(p => p.Column < col ? Return<Unit>(null!) : Zero<Unit>())
+        .AndR(SkipAnyOf(" \t")));
+
+    private static StringP EscapedChar(long indent) =>
+        Skip('\\')
+        .And(escapableChar)
+        .And(c => c switch {
+            '\n' => SkipIndent(indent).Return(""),
+            'n' => Return("\n"),
+            't' => Return("\t"),
+            'r' => Return("\r"),
+            'f' => Return("\f"),
+            '0' => Return("\0"),
+            'b' => Return("\b"),
+            'v' => Return("\v"),
+            _ => Return(c.ToString())
         })
         .Lbl_("escape sequence");
 
-    private static readonly StringP doubleQuoteStrPart = ManyChars(NoneOf("\"\\\r\n").Lbl("any char (except \", \\, or newline)"));
+    private static StringP quotedStr = FSharpFunc.From<Chars, StringR>(chars => {
+        var (status, quote, err) = AnyOf("'\"").Invoke(chars);
 
-    private static readonly StringP singleQuoteStrPart = ManyChars(NoneOf("'\\\r\n").Lbl("any char (except ', \\, or newline)"));
+        if (status != FParsec.ReplyStatus.Ok) return new(status, null!, err);
+
+        var strStart = chars.Position.Column;
+
+        var normalStrPart = ManyChars(NoneOf($"{quote}\\\r\n").Lbl($"any char (except {quote}, \\, or newline)"));
+
+        var p = ManyStrings(normalStrPart, sep: EscapedChar(strStart)).And(Skip(quote));
+
+        return p.Invoke(chars);
+    });
 
     private static readonly JsonNodeP jstring =
-        Choice(
-            Between('"', ManyStrings(doubleQuoteStrPart, sep: escapedChar), '"'),
-            Between('\'', ManyStrings(singleQuoteStrPart, sep: escapedChar), '\''))
+        quotedStr
         .Map(s => (JsonNode?)s)
         .Lbl_("string");
 
     private static readonly JsonNodeP jnum = NumberLiteral(numLiteralOpts, label: "number").Map(ParseNumLiteral);
 
     private static readonly JsonNodeP json5 =
-        Choice(
+        WS
+        .And(Choice(
             jnull,
             jbool,
             infinitySymbol,
             jstring,
-            jnum)
+            jnum))
         .And(EOF);
 }
