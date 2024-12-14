@@ -8,8 +8,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D01132ED-FCA2-4F56-B99E-5C047707908B}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
 		.gitignore = .gitignore
 		README.md = README.md
+		reference.html = reference.html
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Json5.Tests", "Json5.Tests\Json5.Tests.csproj", "{2D81813A-D9A3-49C5-9940-70500CF2F42D}"

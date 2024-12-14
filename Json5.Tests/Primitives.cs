@@ -161,7 +161,8 @@ public partial class Primitives {
     public class Strings {
         [Fact] void DoubleQuoted() => Json5.Parse("\"strings are 'fun'\"").Should().BeValue("strings are 'fun'");
         [Fact] void SingleQuoted() => Json5.Parse("'strings are \"fun\"'").Should().BeValue("strings are \"fun\"");
-        [Fact] void NoUnescapedLineTerminator() => Invoking(() => Json5.Parse("\"let's have a break\nshall we\"")).Should().Throw<Exception>().WithMessage(
+        [Fact]
+        void NoUnescapedLineTerminator() => Invoking(() => Json5.Parse("\"let's have a break\nshall we\"")).Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 1
             "let's have a break
@@ -188,7 +189,8 @@ public partial class Primitives {
             [Fact] void Tab() => Json5.Parse(@"'space\tcreated'").Should().BeValue("space\tcreated");
             [Fact] void VerticalTab() => Json5.Parse(@"'space\vcreated'").Should().BeValue("space\vcreated");
             [Fact] void NullChar() => Json5.Parse(@"'terminate me\0'").Should().BeValue("terminate me\0");
-            [Fact] void Unknown() => Invoking(() => Json5.Parse(@"'\?'")).Should().Throw<Exception>().WithMessage(
+            [Fact]
+            void Unknown() => Invoking(() => Json5.Parse(@"'\?'")).Should().Throw<Exception>().WithMessage(
                 """
                 Error in Ln: 1 Col: 1
                 '\?'
