@@ -35,39 +35,12 @@ public static partial class Json5Parser {
             StringP<JsonNode?>("-∞", double.NegativeInfinity))
         .Lbl("number");
 
-    private static readonly CharP escapableChar = AnyOf("nt'\"\\\nrf0bv").Lbl("any char in ‘nt'\"\\rf0bv’ or newline");
-
-    private static UnitP SkipIndent(long col) => SkipMany(
-        PositionP
-        .And(p => p.Column < col ? Return<Unit>(null!) : Zero<Unit>())
-        .AndR(SkipAnyOf(" \t")));
-
-    private static StringP EscapedCharOrLineContinuation(long indent) =>
-        Skip('\\')
-        .And(escapableChar)
-        .And(c => c switch {
-            '\n' => SkipIndent(indent).Return(""),
-            'n' => Return("\n"),
-            't' => Return("\t"),
-            'r' => Return("\r"),
-            'f' => Return("\f"),
-            '0' => Return("\0"),
-            'b' => Return("\b"),
-            'v' => Return("\v"),
-            _ => Return(c.ToString())
-        })
-        .Lbl_("escape sequence");
-
-    private static StringP quotedString =
+    private static readonly JsonNodeP jstring =
         AnyOf("'\"")
         .And(PositionP.Map(p => p.Column))
-        .And((quote, strStart) =>
-            ManyStrings(
-                ManyChars(NoneOf($"{quote}\\\r\n").Lbl($"any char (except {quote}, \\, or newline)")),
-                sep: EscapedCharOrLineContinuation(strStart))
-            .And(Skip(quote)));
-
-    private static readonly JsonNodeP jstring = quotedString.Map(s => (JsonNode?)s).Lbl_("string");
+        .And(ParseStringContent)
+        .Map(s => (JsonNode?)s)
+        .Lbl_("string");
 
     private static readonly JsonNodeP jnum = NumberLiteral(numLiteralOpts, label: "number").Map(ParseNumLiteral);
 
