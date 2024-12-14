@@ -161,22 +161,25 @@ public partial class Primitives {
     public class Strings {
         [Fact] void DoubleQuoted() => Json5.Parse("\"strings are 'fun'\"").Should().BeValue("strings are 'fun'");
         [Fact] void SingleQuoted() => Json5.Parse("'strings are \"fun\"'").Should().BeValue("strings are \"fun\"");
-        [Fact]
-        void NoUnescapedLineTerminator() => Invoking(() => Json5.Parse("\"let's have a break\nshall we\"")).Should().Throw<Exception>().WithMessage(
-            """
-            Error in Ln: 1 Col: 1
-            "let's have a break
-            ^
-            Expecting: bool, null, number or string
 
-            string could not be parsed because:
-              Error in Ln: 1 Col: 20
-              "let's have a break
-                                 ^
-              Note: The error occurred at the end of the line.
-              Expecting: any char (except ", \, or newline), escape sequence or '"'
+        [Fact]
+        void NoUnescapedLineTerminator() =>
+            Invoking(() => Json5.Parse("\"let's have a break\nshall we\""))
+            .Should().Throw<Exception>().WithMessage(
+                """
+                Error in Ln: 1 Col: 1
+                "let's have a break
+                ^
+                Expecting: bool, null, number or string
+
+                string could not be parsed because:
+                  Error in Ln: 1 Col: 20
+                  "let's have a break
+                                     ^
+                  Note: The error occurred at the end of the line.
+                  Expecting: any char (except ", \, or newline), escape sequence or '"'
             
-            """);
+                """);
 
         public class EscapeSequences {
             [Fact] void SingleQuote() => Json5.Parse(@"'let\'s go'").Should().BeValue("let's go");
@@ -189,27 +192,75 @@ public partial class Primitives {
             [Fact] void Tab() => Json5.Parse(@"'space\tcreated'").Should().BeValue("space\tcreated");
             [Fact] void VerticalTab() => Json5.Parse(@"'space\vcreated'").Should().BeValue("space\vcreated");
             [Fact] void NullChar() => Json5.Parse(@"'terminate me\0'").Should().BeValue("terminate me\0");
+
             [Fact]
-            void Unknown() => Invoking(() => Json5.Parse(@"'\?'")).Should().Throw<Exception>().WithMessage(
-                """
-                Error in Ln: 1 Col: 1
-                '\?'
-                ^
-                Expecting: bool, null, number or string
-
-                string could not be parsed because:
-                  Error in Ln: 1 Col: 2
-                  '\?'
-                   ^
-                  Expecting: any char (except ', \, or newline) or escape sequence
-
-                  escape sequence could not be parsed because:
-                    Error in Ln: 1 Col: 3
+            void Unknown() =>
+                Invoking(() => Json5.Parse(@"'\?'"))
+                .Should().Throw<Exception>().WithMessage(
+                    """
+                    Error in Ln: 1 Col: 1
                     '\?'
-                      ^
-                    Expecting: any char in ‘bfnrtv0'"\’
+                    ^
+                    Expecting: bool, null, number or string
+
+                    string could not be parsed because:
+                      Error in Ln: 1 Col: 2
+                      '\?'
+                       ^
+                      Expecting: any char (except ', \, or newline) or escape sequence
+
+                      escape sequence could not be parsed because:
+                        Error in Ln: 1 Col: 3
+                        '\?'
+                          ^
+                        Expecting: any char in ‘nt'"\rf0bv’ or newline
                 
-                """);
+                    """);
+        }
+
+        public class Multiline {
+            [Fact]
+            void EscapedNewlinesAreIgnored() =>
+                Json5.Parse(
+                    """
+                    "Look mom, I'm on \
+                    multiple \
+                    lines!"
+                    """)
+                .Should().BeValue("Look mom, I'm on multiple lines!");
+
+            [Fact]
+            void IgnoresIndentationBeforeStringStartColumn() =>
+                Json5.Parse(
+                    """
+                        "Look mom, I'm on \
+                         multiple \
+                         indented \
+                         lines!"
+                    """)
+                .Should().BeValue("Look mom, I'm on multiple indented lines!");
+
+            [Fact]
+            void HandlesUnevenIndentationBeforeStringStartColumn() =>
+                Json5.Parse(
+                    """
+                        "Look mom, I'm on \
+                         multiple \
+                       weirdly indented \
+                    lines!"
+                    """)
+                .Should().BeValue("Look mom, I'm on multiple weirdly indented lines!");
+
+            [Fact]
+            void KeepsIndentationAfterStringStartColumn() =>
+                Json5.Parse(
+                    """
+                        "Look mom, I'm on \
+                           multiple \
+                             indented \
+                               lines!"
+                    """)
+                .Should().BeValue("Look mom, I'm on   multiple     indented       lines!");
         }
     }
 }

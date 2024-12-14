@@ -33,15 +33,18 @@ public static partial class Json5Parser {
             StringP<JsonNode?>("-∞", double.NegativeInfinity))
         .Lbl("number");
 
-    private static readonly StringP escapedChar = CharP('\\').AndR(AnyOf("bfnrtv0'\"\\"))
+    private static readonly CharP escapableChar = AnyOf("nt'\"\\\nrf0bv").Lbl("any char in ‘nt'\"\\rf0bv’ or newline");
+
+    private static readonly StringP escapedChar = CharP('\\').AndR(escapableChar)
         .Map(c => c switch {
-            'b' => "\b",
-            'f' => "\f",
             'n' => "\n",
-            'r' => "\r",
             't' => "\t",
-            'v' => "\v",
+            '\n' => "",
+            'r' => "\r",
+            'f' => "\f",
             '0' => "\0",
+            'b' => "\b",
+            'v' => "\v",
             _ => c.ToString()
         })
         .Lbl_("escape sequence");
