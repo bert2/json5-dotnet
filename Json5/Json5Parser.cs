@@ -24,6 +24,11 @@ using ParserResult = FParsec.CharParsers.ParserResult<JsonNode?, Unit>;
 public static partial class Json5Parser {
     public static ParserResult Parse(string json) => json5.Run(json);
 
+    private static readonly UnitP wsc = Purify(SkipMany(Choice(
+        WS1,
+        Skip("//").AndR(SkipRestOfLine(skipNewline: true)),
+        Skip("/*").AndR(SkipCharsTillString("*/", int.MaxValue, skipString: true)))));
+
     private static readonly JsonNodeP jnull = StringP<JsonNode?>("null", null).Lbl("null");
 
     private static readonly JsonNodeP jbool = StringP<JsonNode?>("true", true).Or(StringP<JsonNode?>("false", false)).Lbl("bool");
@@ -45,12 +50,12 @@ public static partial class Json5Parser {
     private static readonly JsonNodeP jnum = NumberLiteral(numLiteralOpts, label: "number").Map(ParseNumLiteral);
 
     private static readonly JsonNodeP json5 =
-        WS
+        wsc
         .And(Choice(
             jnull,
             jbool,
             infinitySymbol,
             jstring,
-            jnum))
+            jnum).And(wsc))
         .And(EOF);
 }
