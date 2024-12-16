@@ -7,7 +7,6 @@ using FluentAssertions;
 using Helpers;
 
 using System.Numerics;
-using System.Text;
 
 using static FluentAssertions.FluentActions;
 
@@ -209,7 +208,6 @@ public partial class Primitives {
                     .Select(Convert.ToChar)
                     .Except("'xubfnrtv0123456789\n\r")
                     .ForEach(c => Json5.Parse($@"'\{c}'").Should().BeValue(c.ToString(), $"Char {c} ({(int)c}) should be mapped to itself"));
-
             }
 
             public class HexSequence {
