@@ -27,7 +27,7 @@ public static partial class Json5Parser {
     private static readonly UnitP wsc = Purify(SkipMany(Choice(
         WS1,
         Skip("//").AndR(SkipRestOfLine(skipNewline: true)),
-        Skip("/*").AndR(SkipCharsTillString("*/", int.MaxValue, skipString: true)))));
+        Skip("/*").AndR(SkipCharsTillString("*/", maxCount: int.MaxValue, skipString: true)))));
 
     private static readonly JsonNodeP jnull = StringP<JsonNode?>("null", null).Lbl("null");
 
