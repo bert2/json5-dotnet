@@ -39,7 +39,7 @@ public static class Comments {
         void MustBeClosed() =>
             Invoking(() => Json5.Parse("/* blah"))
             .Should().Throw<Exception>().WithMessage(
-                $"""
+                """
                 Error in Ln: 1 Col: 8
                 /* blah
                        ^

@@ -13,7 +13,7 @@ public class ParserErrors {
     void GeneralError() =>
         Invoking(() => Json5.Parse("foo"))
         .Should().Throw<Exception>().WithMessage(
-            $"""
+            """
             Error in Ln: 1 Col: 1
             foo
             ^
