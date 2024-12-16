@@ -13,14 +13,14 @@ using static FluentAssertions.FluentActions;
 public class Arrays {
     [Fact] void Empty() => Json5.Parse("[]").Should().BeArray().And.BeEmpty();
     [Fact] void Singleton() => Json5.Parse("[1]").Should().BeArray().And.ContainSingle().Which.Should().BeValue(1);
-    [Fact] void Multiple() => Json5.Parse("[1,2]").Should().BeArray().And.Equal(1, 2);
+    [Fact] void Multiple() => Json5.Parse("[1,2,3]").Should().BeArray().And.Equal(1, 2, 3);
 
     [Fact]
     void MixedTypes() =>
         Json5.Parse("[null,1,0.2,3m,'foo',true]")
         .Should().BeArray().And.Equal(null, 1, 0.2, 3m, "foo", true);
 
-    [Fact] void TrailingCommaIsAllowed() => Json5.Parse("['bar',]").Should().BeArray().And.Equal("bar");
+    [Fact] void TrailingCommaAllowed() => Json5.Parse("['bar',]").Should().BeArray().And.Equal("bar");
 
     [Fact]
     void Whitespace() =>
@@ -84,8 +84,8 @@ public class Arrays {
 
         [Fact]
         void Multiple() =>
-            Json5.Parse("[[1,2],[3,4]]")
-            .Should().BeArray().And.Equal(new JsonArray(1, 2), new JsonArray(3, 4));
+            Json5.Parse("[[1,2],[3,4],[5,6]]")
+            .Should().BeArray().And.Equal(new JsonArray(1, 2), new JsonArray(3, 4), new JsonArray(5, 6));
 
         [Fact]
         void MixedTypes() =>
