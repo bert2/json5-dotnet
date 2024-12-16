@@ -13,7 +13,7 @@ using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 using UnitP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<Unit>>;
 
 public static partial class Json5Parser {
-    private static readonly CharP escapableChar = AnyOf("nt'\"\\\nrf0bv").Lbl("any char in ‘nt'\"\\rf0bv’ or newline");
+    private static readonly CharP escapableChar = NoneOf("123456789");
 
     private static UnitP SkipIndent(long col) => SkipMany(
         PositionP
