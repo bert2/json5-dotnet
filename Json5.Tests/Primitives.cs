@@ -4,7 +4,10 @@ namespace Json5.Tests;
 
 using FluentAssertions;
 
+using Helpers;
+
 using System.Numerics;
+using System.Text;
 
 using static FluentAssertions.FluentActions;
 
@@ -204,9 +207,29 @@ public partial class Primitives {
                 void AnyOtherIsMappedToItself() => Enumerable
                     .Range(0, 256)
                     .Select(Convert.ToChar)
-                    .Except("'bfnrtv0123456789\n\r")
+                    .Except("'xubfnrtv0123456789\n\r")
                     .ForEach(c => Json5.Parse($@"'\{c}'").Should().BeValue(c.ToString(), $"Char {c} ({(int)c}) should be mapped to itself"));
 
+            }
+
+            public class HexSequence {
+                [Fact] void Example() => Json5.Parse(@"'\xFF'").Should().BeValue("ÿ");
+
+                [Fact]
+                void HexNumberIsConvertedToChar() => Enumerable
+                    .Range(0, 256)
+                    .Select(x => (Char: (char)x, Hex: x.ToString("x2")))
+                    .ForEach(x => Json5.Parse($@"'\x{x.Hex}'").Should().BeValue(x.Char.ToString(), $@"escape sequence \x{x.Hex} should be mapped to {x.Char}"));
+            }
+
+            public class UnicodeSequence {
+                [Fact] void Example() => Json5.Parse(@"'\uACDC'").Should().BeValue("곜");
+
+                [Fact]
+                void HexNumberIsConvertedToChar() => Enumerable
+                    .Range(0, ushort.MaxValue + 1)
+                    .Select(x => (Char: x.ToUnicode(), Hex: x.ToString("x4")))
+                    .ForEach(x => Json5.Parse($@"'\u{x.Hex}'").Should().BeValue(x.Char, $@"escape sequence \u{x.Hex} should be mapped to {x.Char}"));
             }
 
             public class LineContinuation {

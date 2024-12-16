@@ -1,4 +1,4 @@
-﻿namespace Json5.Tests;
+﻿namespace Json5.Tests.Helpers;
 
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -60,7 +60,7 @@ public record JsonNodeAssertions(JsonNode Subject) {
     }
 
     public AndConstraint<JsonNodeAssertions> BeValue<T>(T expected, string because = "", params object[] becauseArgs)
-        where T: IEquatable<T> {
+        where T : IEquatable<T> {
         var actual = Subject.GetValue<T>();
         Execute.Assertion
             .BecauseOf(because, becauseArgs)

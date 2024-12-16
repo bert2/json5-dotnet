@@ -2,6 +2,8 @@
 
 namespace Json5.Tests;
 
+using Helpers;
+
 public static class Comments {
     public class SingleLine {
         [Fact]

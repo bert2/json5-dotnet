@@ -2,6 +2,8 @@
 
 using Microsoft.FSharp.Core;
 
+using System.Text;
+
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
 
@@ -15,16 +17,24 @@ using UnitP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<Unit>>;
 public static partial class Json5Parser {
     private static readonly CharP escapableChar = NoneOf("123456789");
 
+    private static readonly StringP hexEncodedAscii = Array(2, Hex)
+        .Map(x => new string((char)Convert.FromHexString(x)[0], 1));
+
+    private static readonly StringP hexEncodedUnicode = Array(4, Hex)
+        .Map(x => Encoding.BigEndianUnicode.GetString(Convert.FromHexString(x)));
+
     private static UnitP SkipIndent(long col) => SkipMany(
         PositionP
         .And(p => p.Column < col ? Return<Unit>(null!) : Zero<Unit>())
         .AndR(SkipAnyOf(" \t")));
 
-    private static StringP EscapedCharOrLineContinuation(long indent) =>
+    private static StringP EscapeSequence(long indent) =>
         Skip('\\')
         .And(escapableChar)
         .And(c => c switch {
             '\n' => SkipIndent(indent).Return(""),
+            'x' => hexEncodedAscii,
+            'u' => hexEncodedUnicode,
             'n' => Return("\n"),
             't' => Return("\t"),
             'r' => Return("\r"),
@@ -39,6 +49,6 @@ public static partial class Json5Parser {
     private static StringP ParseStringContent(char quote, long strStart) =>
         ManyStrings(
             ManyChars(NoneOf($"{quote}\\\n").Lbl($"any char (except {quote}, \\, or newline)")),
-            sep: EscapedCharOrLineContinuation(strStart))
+            sep: EscapeSequence(strStart))
         .And(Skip(quote));
 }
