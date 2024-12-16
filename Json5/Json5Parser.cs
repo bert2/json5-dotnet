@@ -31,13 +31,19 @@ public static partial class Json5Parser {
 
     private static readonly JsonNodeP jnull = StringP<JsonNode?>("null", null).Lbl("null");
 
-    private static readonly JsonNodeP jbool = StringP<JsonNode?>("true", true).Or(StringP<JsonNode?>("false", false)).Lbl("bool");
+    private static readonly JsonNodeP jbool =
+        Choice(
+            StringP("true", true),
+            StringP("false", false))
+        .Map(x => (JsonNode?)x) // deferred conversion ensures a new JsonNode is created every time
+        .Lbl("bool");
 
     private static readonly JsonNodeP infinitySymbol =
         Choice(
-            CharP<JsonNode?>('∞', double.PositiveInfinity),
-            StringP<JsonNode?>("+∞", double.PositiveInfinity),
-            StringP<JsonNode?>("-∞", double.NegativeInfinity))
+            CharP('∞', double.PositiveInfinity),
+            StringP("+∞", double.PositiveInfinity),
+            StringP("-∞", double.NegativeInfinity))
+        .Map(x => (JsonNode?)x) // deferred conversion ensures a new JsonNode is created every time
         .Lbl("number");
 
     private static readonly JsonNodeP jstring =
@@ -45,17 +51,27 @@ public static partial class Json5Parser {
         .And(PositionP.Map(p => p.Column))
         .And(ParseStringContent)
         .Map(s => (JsonNode?)s)
-        .Lbl_("string");
+        .Lbl("string");
 
-    private static readonly JsonNodeP jnum = NumberLiteral(numLiteralOpts, label: "number").Map(ParseNumLiteral);
+    private static readonly JsonNodeP jnumber = NumberLiteral(numLiteralOpts, label: "number").Map(ParseNumLiteral);
 
-    private static readonly JsonNodeP json5 =
-        wsc
-        .And(Choice(
+    private static readonly JsonNodeP jarray =
+        Between(
+            Skip('[').AndR(wsc),
+            Many(Rec(() => jvalue), sep: Skip(',').AndR(wsc), canEndWithSep: true),
+            Skip(']'))
+        .Map(elems => (JsonNode?)new JsonArray([.. elems]))
+        .Lbl("array");
+
+    private static readonly JsonNodeP jvalue =
+        Choice(
+            jarray,
             jnull,
             jbool,
             infinitySymbol,
             jstring,
-            jnum).And(wsc))
-        .And(EOF);
+            jnumber)
+        .And(wsc);
+
+    private static readonly JsonNodeP json5 = wsc.And(jvalue).And(EOF);
 }

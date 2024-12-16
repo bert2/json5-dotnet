@@ -1,6 +1,7 @@
 ﻿namespace Json5.Tests.Helpers;
 
 using FluentAssertions;
+using FluentAssertions.Collections;
 using FluentAssertions.Execution;
 
 using System.Diagnostics.CodeAnalysis;
@@ -71,9 +72,16 @@ public record JsonNodeAssertions(JsonNode Subject) {
         return new AndConstraint<JsonNodeAssertions>(this);
     }
 
+    public AndConstraint<JsonArrayAssertions> BeArray() => new(new JsonArrayAssertions(Subject.AsArray()));
+
     public AndConstraint<JsonNodeAssertions> BeJson(
         [StringSyntax("Json")] string expected,
         string because = "",
         params object[] becauseArgs)
         => Be(JsonNode.Parse(expected), because, becauseArgs);
+}
+
+public class JsonArrayAssertions(IEnumerable<JsonNode?> actual) : GenericCollectionAssertions<JsonNode?>(actual) {
+    public new AndConstraint<GenericCollectionAssertions<JsonNode?>> Equal(params JsonNode?[] elements)
+        => Equal(elements, JsonNode.DeepEquals);
 }

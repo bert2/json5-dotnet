@@ -2,7 +2,11 @@
 
 namespace Json5.Tests;
 
+using FluentAssertions;
+
 using Helpers;
+
+using static FluentAssertions.FluentActions;
 
 public static class Comments {
     public class SingleLine {
@@ -30,5 +34,18 @@ public static class Comments {
             null /* this line
                     has a null value */
             """).Should().BeNull();
+
+        [Fact]
+        void MustBeClosed() =>
+            Invoking(() => Json5.Parse("/* blah"))
+            .Should().Throw<Exception>().WithMessage(
+                $"""
+                Error in Ln: 1 Col: 8
+                /* blah
+                       ^
+                Note: The error occurred at the end of the input stream.
+                Could not find the string '*/'.
+                
+                """);
     }
 }

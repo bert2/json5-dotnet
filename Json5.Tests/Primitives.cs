@@ -183,22 +183,16 @@ public partial class Primitives {
                     Invoking(() => Json5.Parse($@"'\{c}'"))
                     .Should().Throw<Exception>().WithMessage(
                         $"""
-                        Error in Ln: 1 Col: 1
+                        Error in Ln: 1 Col: 2
                         '\{c}'
-                        ^
-                        Expecting: bool, null, number or string
+                         ^
+                        Expecting: next string character or escape sequence
 
-                        string could not be parsed because:
-                          Error in Ln: 1 Col: 2
+                        escape sequence could not be parsed because:
+                          Error in Ln: 1 Col: 3
                           '\{c}'
-                           ^
-                          Expecting: next string character or escape sequence
-
-                          escape sequence could not be parsed because:
-                            Error in Ln: 1 Col: 3
-                            '\{c}'
-                              ^
-                            Expecting: any char not in ‘123456789’
+                            ^
+                          Expecting: any char not in ‘123456789’
 
                         """));
 
@@ -236,18 +230,12 @@ public partial class Primitives {
                     Invoking(() => Json5.Parse("\"let's have a break\nshall we\""))
                     .Should().Throw<Exception>().WithMessage(
                         """
-                        Error in Ln: 1 Col: 1
+                        Error in Ln: 1 Col: 20
                         "let's have a break
-                        ^
-                        Expecting: bool, null, number or string
-
-                        string could not be parsed because:
-                          Error in Ln: 1 Col: 20
-                          "let's have a break
-                                             ^
-                          Note: The error occurred at the end of the line.
-                          Expecting: escape sequence, next string character or '"'
-            
+                                           ^
+                        Note: The error occurred at the end of the line.
+                        Expecting: escape sequence, next string character or '"'
+                        
                         """);
 
                 [Fact]
