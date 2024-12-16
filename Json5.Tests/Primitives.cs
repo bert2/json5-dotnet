@@ -190,9 +190,9 @@ public partial class Primitives {
 
                         string could not be parsed because:
                           Error in Ln: 1 Col: 2
-                          '\?'
+                          '\{c}'
                            ^
-                          Expecting: any char (except ', \, or newline) or escape sequence
+                          Expecting: next string character or escape sequence
 
                           escape sequence could not be parsed because:
                             Error in Ln: 1 Col: 3
@@ -246,7 +246,7 @@ public partial class Primitives {
                           "let's have a break
                                              ^
                           Note: The error occurred at the end of the line.
-                          Expecting: any char (except ", \, or newline), escape sequence or '"'
+                          Expecting: escape sequence, next string character or '"'
             
                         """);
 

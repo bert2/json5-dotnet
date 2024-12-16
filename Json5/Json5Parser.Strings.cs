@@ -48,7 +48,7 @@ public static partial class Json5Parser {
 
     private static StringP ParseStringContent(char quote, long strStart) =>
         ManyStrings(
-            ManyChars(NoneOf($"{quote}\\\n").Lbl($"any char (except {quote}, \\, or newline)")),
+            ManyChars(NoneOf($"{quote}\\\n").Lbl("next string character")),
             sep: EscapeSequence(strStart))
         .And(Skip(quote));
 }
