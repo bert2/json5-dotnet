@@ -2,12 +2,11 @@
 
 using Microsoft.FSharp.Core;
 
-using System.Text;
+namespace Json5.Parsing;
 
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
-
-namespace Json5.Parsing;
+using static System.Buffers.Binary.BinaryPrimitives;
 
 using Chars = FParsec.CharStream<Unit>;
 using CharP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<char>>;
@@ -21,7 +20,7 @@ public static partial class Json5Parser {
         .Map(x => new string((char)Convert.FromHexString(x)[0], 1));
 
     private static readonly StringP hexEncodedUnicode = Array(4, Hex)
-        .Map(x => Encoding.BigEndianUnicode.GetString(Convert.FromHexString(x)));
+        .Map(x => new string((char)ReadUInt16BigEndian(Convert.FromHexString(x)), 1));
 
     private static UnitP SkipIndent(long col) => SkipMany(
         PositionP

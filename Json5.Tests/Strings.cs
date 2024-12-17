@@ -13,7 +13,7 @@ public class Strings {
     [Fact] void SingleQuoted() => Json5.Parse("'strings are \"fun\"'").Should().BeValue("strings are \"fun\"");
 
     public static class Escaping {
-        public class SingleCharacter {
+        public class SingleCharacters {
             [Fact] void SingleQuote() => Json5.Parse(@"'let\'s go'").Should().BeValue("let's go");
             [Fact] void DoubleQuote() => Json5.Parse("\"...\\\"go\\\" where?\"").Should().BeValue("...\"go\" where?");
             [Fact] void Backslash() => Json5.Parse(@"'escape with \\'").Should().BeValue(@"escape with \");
@@ -53,7 +53,7 @@ public class Strings {
                     .Should().BeValue(c.ToString(), because: $"Char {c} ({(int)c}) should be mapped to itself"));
         }
 
-        public class HexSequence {
+        public class HexSequences {
             [Fact] void Example() => Json5.Parse(@"'\xFF'").Should().BeValue("ÿ");
 
             [Fact]
@@ -65,19 +65,21 @@ public class Strings {
                     .Should().BeValue(x.Char.ToString(), because: $@"escape sequence \x{x.Hex} should be mapped to {x.Char}"));
         }
 
-        public class UnicodeSequence {
+        public class UnicodeSequences {
             [Fact] void Example() => Json5.Parse(@"'\uACDC'").Should().BeValue("곜");
+
+            [Fact] void SurrogatePairExample() => Json5.Parse(@"'\uD83C\uDFBC'").Should().BeValue("\U0001F3BC");
 
             [Fact]
             void HexNumberIsConvertedToChar() => Enumerable
                 .Range(0, ushort.MaxValue + 1)
-                .Select(x => (Char: x.ToUnicode(), Hex: x.ToString("x4")))
+                .Select(x => (Char: new string((char)x, 1), Hex: x.ToString("x4")))
                 .ForEach(x =>
                     Json5.Parse($@"'\u{x.Hex}'")
                     .Should().BeValue(x.Char, because: $@"escape sequence \u{x.Hex} should be mapped to {x.Char}"));
         }
 
-        public class LineContinuation {
+        public class LineContinuations {
             [Fact]
             void NoUnescapedLineTerminator() =>
                 Invoking(() => Json5.Parse("\"let's have a break, \nshall we\""))

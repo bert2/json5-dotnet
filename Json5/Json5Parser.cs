@@ -1,15 +1,15 @@
 ﻿#pragma warning disable IDE0065 // Misplaced using directive
 
-using FParsec.CSharp;
-
 using Microsoft.FSharp.Core;
 
 using System.Text.Json.Nodes;
 
+namespace Json5.Parsing;
+
+using FParsec.CSharp;
+
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
-
-namespace Json5.Parsing;
 
 using Chars = FParsec.CharStream<Unit>;
 using UnitR = FParsec.Reply<Unit>;
@@ -24,7 +24,7 @@ using ParserResult = FParsec.CharParsers.ParserResult<JsonNode?, Unit>;
 public static partial class Json5Parser {
     public static ParserResult Parse(string json) => json5.Run(json);
 
-    private static readonly UnitP ws1 = SkipMany1Chars(c => char.IsWhiteSpace(c) || c == '\uFEFF');
+    private static readonly UnitP ws1 = Choice(UnicodeSpaces1, Skip('\uFEFF'));
 
     private static readonly UnitP wsc = Purify(SkipMany(Choice(
         ws1,
