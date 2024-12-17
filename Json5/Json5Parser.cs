@@ -24,8 +24,10 @@ using ParserResult = FParsec.CharParsers.ParserResult<JsonNode?, Unit>;
 public static partial class Json5Parser {
     public static ParserResult Parse(string json) => json5.Run(json);
 
+    private static readonly UnitP ws1 = SkipMany1Chars(c => char.IsWhiteSpace(c) || c == '\uFEFF');
+
     private static readonly UnitP wsc = Purify(SkipMany(Choice(
-        WS1,
+        ws1,
         Skip("//").AndR(SkipRestOfLine(skipNewline: true)),
         Skip("/*").AndR(SkipCharsTillString("*/", maxCount: int.MaxValue, skipString: true)))));
 
