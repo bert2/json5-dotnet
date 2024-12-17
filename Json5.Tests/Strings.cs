@@ -80,12 +80,12 @@ public class Strings {
         public class LineContinuation {
             [Fact]
             void NoUnescapedLineTerminator() =>
-                Invoking(() => Json5.Parse("\"let's have a break\nshall we\""))
+                Invoking(() => Json5.Parse("\"let's have a break, \nshall we\""))
                 .Should().Throw<Exception>().WithMessage(
                     """
-                    Error in Ln: 1 Col: 20
-                    "let's have a break
-                                       ^
+                    Error in Ln: 1 Col: 22
+                    "let's have a break, 
+                                         ^
                     Note: The error occurred at the end of the line.
                     Expecting: escape sequence, next string character or '"'
 
@@ -133,6 +133,12 @@ public class Strings {
                                lines!"
                     """)
                 .Should().BeValue("Look mom, I'm on   multiple     indented       lines!");
+
+            [Fact] void AcceptsEscapedLf() => Json5.Parse("'break \\\nhere'").Should().BeValue("break here");
+            [Fact] void AcceptsEscapedCr() => Json5.Parse("'break \\\rhere'").Should().BeValue("break here");
+            [Fact] void AcceptsEscapedCrLf() => Json5.Parse("'break \\\r\nhere'").Should().BeValue("break here");
+            [Fact] void AcceptsEscapedUnicodeLineSeparator() => Json5.Parse("'break \\\u2028here'").Should().BeValue("break here");
+            [Fact] void AcceptsEscapedUnicodeParagraphSeparator() => Json5.Parse("'break \\\u2029here'").Should().BeValue("break here");
         }
     }
 }

@@ -32,7 +32,7 @@ public static partial class Json5Parser {
         Skip('\\')
         .And(escapableChar)
         .And(c => c switch {
-            '\n' => SkipIndent(indent).Return(""),
+            '\n' or '\u2028' or '\u2029' => SkipIndent(indent).Return(""),
             'x' => hexEncodedAscii,
             'u' => hexEncodedUnicode,
             'n' => Return("\n"),
