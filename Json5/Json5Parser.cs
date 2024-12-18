@@ -50,7 +50,7 @@ public static partial class Json5Parser {
 
     private static readonly StringP @string =
         AnyOf("'\"")
-        .And(ParseStringContent)
+        .And(StringContent)
         .Lbl("string");
 
     private static readonly JsonNodeP jstring = @string.Map(s => (JsonNode?)s);

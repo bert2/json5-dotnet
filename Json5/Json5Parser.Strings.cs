@@ -16,7 +16,7 @@ using UnitP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<Unit>>;
 public static partial class Json5Parser {
     private static readonly CharP escapableChar = NoneOf("123456789");
 
-    private static readonly UnitP nonBreakSpaces = Purify(SkipMany(AnyOf("\t\v \u00A0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF")));
+    private static readonly UnitP nonBreakSpaces = Purify(SkipMany(AnyOf(" \t\v\f\u00A0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF")));
 
     private static readonly StringP hexEncodedAscii = Array(2, Hex)
         .Map(x => new string((char)Convert.FromHexString(x)[0], 1));
@@ -28,9 +28,6 @@ public static partial class Json5Parser {
         Skip('\\')
         .And(escapableChar)
         .And(c => c switch {
-            '\n' or '\u2028' or '\u2029' => nonBreakSpaces.Return(""),
-            'x' => hexEncodedAscii,
-            'u' => hexEncodedUnicode,
             'n' => Return("\n"),
             't' => Return("\t"),
             'r' => Return("\r"),
@@ -38,13 +35,16 @@ public static partial class Json5Parser {
             '0' => Return("\0"),
             'b' => Return("\b"),
             'v' => Return("\v"),
+            'x' => hexEncodedAscii,
+            'u' => hexEncodedUnicode,
+            '\n' or '\u0085' or '\u2028' or '\u2029' => nonBreakSpaces.Return(""),
             _ => Return(c.ToString())
         })
         .Lbl_("escape sequence");
 
-    private static StringP ParseStringContent(char quote) =>
+    private static StringP StringContent(char quote) =>
         ManyStrings(
-            ManyChars(NoneOf($"{quote}\\\n").Lbl("next string character")),
+            ManyChars(NoneOf($"{quote}\\\n\u0085\u2028\u2029").Lbl("next string character")),
             sep: escapeSequence)
         .And(Skip(quote));
 }

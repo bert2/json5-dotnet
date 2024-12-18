@@ -47,10 +47,10 @@ public class Strings {
             void AnyOtherIsMappedToItself() => Enumerable
                 .Range(0, 256)
                 .Select(Convert.ToChar)
-                .Except("'xubfnrtv0123456789\n\r")
+                .Except("'xubfnrtv0123456789\n\r\u0085")
                 .ForEach(c =>
                     Json5.Parse($@"'\{c}'")
-                    .Should().BeValue(c.ToString(), because: $"Char {c} ({(int)c}) should be mapped to itself"));
+                    .Should().BeValue(c.ToString(), because: $"Char {c} (\\u{(int)c:X4}) should be mapped to itself"));
         }
 
         public class HexSequences {
