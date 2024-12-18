@@ -48,12 +48,12 @@ public static partial class Json5Parser {
         .Map(x => (JsonNode?)x) // deferred conversion ensures a new JsonNode is created every time
         .Lbl("number");
 
-    private static readonly JsonNodeP jstring =
+    private static readonly StringP @string =
         AnyOf("'\"")
-        .And(PositionP.Map(p => p.Column))
         .And(ParseStringContent)
-        .Map(s => (JsonNode?)s)
         .Lbl("string");
+
+    private static readonly JsonNodeP jstring = @string.Map(s => (JsonNode?)s);
 
     private static readonly JsonNodeP jnumber = NumberLiteral(numLiteralOpts, label: "number").Map(ParseNumLiteral);
 

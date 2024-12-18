@@ -104,7 +104,7 @@ public class Strings {
                 .Should().BeValue("Look mom, I'm on multiple lines!");
 
             [Fact]
-            void IgnoresIndentationBeforeStringStartColumn() =>
+            void IgnoresIndentation() =>
                 Json5.Parse(
                     """
                         "Look mom, I'm on \
@@ -115,26 +115,32 @@ public class Strings {
                 .Should().BeValue("Look mom, I'm on multiple indented lines!");
 
             [Fact]
-            void HandlesUnevenIndentationBeforeStringStartColumn() =>
+            void IndentationDepthDoesNotMatter() =>
                 Json5.Parse(
                     """
                         "Look mom, I'm on \
                          multiple \
-                       weirdly indented \
+                              weirdly indented \
                     lines!"
                     """)
                 .Should().BeValue("Look mom, I'm on multiple weirdly indented lines!");
 
             [Fact]
-            void KeepsIndentationAfterStringStartColumn() =>
-                Json5.Parse(
+            void DoesNotSkipUnescapedNewlineWhenSkippingIndentation() =>
+                Invoking(() => Json5.Parse(
                     """
-                        "Look mom, I'm on \
-                           multiple \
-                             indented \
-                               lines!"
-                    """)
-                .Should().BeValue("Look mom, I'm on   multiple     indented       lines!");
+                    "The next line \
+                    
+                     is invalid because \
+                     of the unescaped newline."
+                    """))
+                .Should().Throw<Exception>().WithMessage(
+                    """"
+                    Error in Ln: 2 Col: 1
+                    Note: The error occurred on an empty line.
+                    Expecting: escape sequence, next string character or '"'
+                    
+                    """");
 
             [Fact] void AcceptsEscapedLf() => Json5.Parse("'break \\\nhere'").Should().BeValue("break here");
             [Fact] void AcceptsEscapedCr() => Json5.Parse("'break \\\rhere'").Should().BeValue("break here");
