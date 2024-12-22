@@ -77,6 +77,21 @@ public class Strings {
                 .ForEach(x =>
                     Json5.Parse($@"'\u{x.Hex}'")
                     .Should().BeValue(x.Char, because: $@"escape sequence \u{x.Hex} should be mapped to {x.Char}"));
+
+            public class ExplicitCodepoints {
+                [Fact] void Example() => Json5.Parse(@"'\u{000061}'").Should().BeValue("a");
+
+                [Fact] void VariableLength() => Json5.Parse(@"'\u{62}'").Should().BeValue("b");
+
+                [Fact] void PrependedZerosAreIgnored() => Json5.Parse(@"'\u{00000000000000000000063}'").Should().BeValue("c");
+
+                [Fact] void MaxSize() => Json5.Parse(@"'\u{10FFFF}'").Should().BeValue("\U0010ffff");
+
+                [Fact]
+                void MaxSizePlus1() =>
+                    Invoking(() => Json5.Parse(@"'\u{110000}'"))
+                    .Should().Throw<Exception>().WithMessage("test");
+            }
         }
 
         public class LineContinuations {

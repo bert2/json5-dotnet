@@ -120,7 +120,8 @@ public static partial class Json5Parser {
         };
     }
 
-    // Prepends 0 so the most significant bit is never set and the resulting bigint will always be positive.
-    static JsonNode ParseVarBytes(ReadOnlySpan<char> s, int sign, NumberStyles style)
+    // Internally prepends 0 to `s` so the most significant bit is never set and the result
+    // of BigInteger.Parse() will always be positive.
+    private static JsonNode ParseVarBytes(ReadOnlySpan<char> s, int sign, NumberStyles style)
         => JsonValue.Create(BigInteger.Parse($"0{s}", style, invCult) * sign)!;
 }

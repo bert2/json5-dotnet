@@ -24,6 +24,12 @@ using ParserResult = FParsec.CharParsers.ParserResult<JsonNode?, Unit>;
 public static partial class Json5Parser {
     public static ParserResult Parse(string json) => json5.Run(json);
 
+    private const string nonBreakingWhitespace = " \t\v\f\u00A0\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\uFEFF";
+
+    private const string breakingWhitespace = "\n\u0085\u2028\u2029"; // \r and \r\n are normalized to \n by FParsec
+
+    private const string whitespace = nonBreakingWhitespace + breakingWhitespace;
+
     private static readonly UnitP ws1 = Choice(UnicodeSpaces1, Skip('\uFEFF'));
 
     private static readonly UnitP wsc = Purify(SkipMany(Choice(
@@ -65,9 +71,15 @@ public static partial class Json5Parser {
         .Map(elems => (JsonNode?)new JsonArray([.. elems]))
         .Lbl("array");
 
+    private static readonly JsonNodeP jobject =
+        Between(Skip('{').AndR(wsc), jobjProps, Skip('}'))
+        .Map(props => (JsonNode?)new JsonObject(props))
+        .Lbl("object");
+
     private static readonly JsonNodeP jvalue =
         Choice(
             jarray,
+            jobject,
             jnull,
             jbool,
             infinitySymbol,
