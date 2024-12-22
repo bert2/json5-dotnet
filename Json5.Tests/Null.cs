@@ -7,5 +7,5 @@ using FluentAssertions;
 using Helpers;
 
 public class Null {
-    [Fact] void Test() => Json5.Parse("null").Should().BeNull();
+    [Fact] void Test() => Parser.Parse("null").Should().BeNull();
 }

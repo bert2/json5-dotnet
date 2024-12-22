@@ -11,20 +11,20 @@ using System.Text.Json.Nodes;
 using static FluentAssertions.FluentActions;
 
 public class Arrays {
-    [Fact] void Empty() => Json5.Parse("[]").Should().BeArray().And.BeEmpty();
-    [Fact] void Singleton() => Json5.Parse("[1]").Should().BeArray().And.ContainSingle().Which.Should().BeValue(1);
-    [Fact] void Multiple() => Json5.Parse("[1,2,3]").Should().BeArray().And.Equal(1, 2, 3);
+    [Fact] void Empty() => Parser.Parse("[]").Should().BeArray().And.BeEmpty();
+    [Fact] void Singleton() => Parser.Parse("[1]").Should().BeArray().And.ContainSingle().Which.Should().BeValue(1);
+    [Fact] void Multiple() => Parser.Parse("[1,2,3]").Should().BeArray().And.Equal(1, 2, 3);
 
     [Fact]
     void MixedTypes() =>
-        Json5.Parse("[null,1,0.2,3m,'foo',true]")
+        Parser.Parse("[null,1,0.2,3m,'foo',true]")
         .Should().BeArray().And.Equal(null, 1, 0.2, 3m, "foo", true);
 
-    [Fact] void TrailingCommaAllowed() => Json5.Parse("['bar',]").Should().BeArray().And.Equal("bar");
+    [Fact] void TrailingCommaAllowed() => Parser.Parse("['bar',]").Should().BeArray().And.Equal("bar");
 
     [Fact]
     void Whitespace() =>
-        Json5.Parse(
+        Parser.Parse(
             """
                
                [      1,1,1,1,
@@ -43,7 +43,7 @@ public class Arrays {
 
     [Fact]
     void SingleLineComments() =>
-        Json5.Parse(
+        Parser.Parse(
             """
             // foo
             [// bar
@@ -55,7 +55,7 @@ public class Arrays {
 
     [Fact]
     void MultilineComments() =>
-        Json5.Parse(
+        Parser.Parse(
             """
             /* foo
             */[/* bar
@@ -68,7 +68,7 @@ public class Arrays {
 
     [Fact]
     void MustBeClosed() =>
-        Invoking(() => Json5.Parse("[true,false"))
+        Invoking(() => Parser.Parse("[true,false"))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 12
@@ -80,16 +80,16 @@ public class Arrays {
             """);
 
     public class Nested {
-        [Fact] void Empty() => Json5.Parse("[[],[]]").Should().BeArray().And.Equal(new JsonArray(), new JsonArray());
+        [Fact] void Empty() => Parser.Parse("[[],[]]").Should().BeArray().And.Equal(new JsonArray(), new JsonArray());
 
         [Fact]
         void Multiple() =>
-            Json5.Parse("[[1,2],[3,4],[5,6]]")
+            Parser.Parse("[[1,2],[3,4],[5,6]]")
             .Should().BeArray().And.Equal(new JsonArray(1, 2), new JsonArray(3, 4), new JsonArray(5, 6));
 
         [Fact]
         void MixedTypes() =>
-            Json5.Parse("[[null,1,0.2],[3m,'bar',true]]")
+            Parser.Parse("[[null,1,0.2],[3m,'bar',true]]")
             .Should().BeArray().And.Equal(new JsonArray(null, 1, 0.2), new JsonArray(3m, "bar", true));
     }
 }

@@ -55,7 +55,7 @@ public static partial class Integers {
         }
     }
 
-    private static T Deserialize<T>(string s) => Json5.Parse(s)!.GetValue<T>();
+    private static T Deserialize<T>(string s) => Parser.Parse(s)!.GetValue<T>();
 
     // generates uint values greater than int.MaxValue
     private static readonly Arbitrary<uint> @uint = ArbMap.Default.ArbFor<uint>()

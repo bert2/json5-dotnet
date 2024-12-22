@@ -7,6 +7,6 @@ using FluentAssertions;
 using Helpers;
 
 public class Booleans {
-    [Fact] void True() => Json5.Parse("true").Should().BeValue(true);
-    [Fact] void False() => Json5.Parse("false").Should().BeValue(false);
+    [Fact] void True() => Parser.Parse("true").Should().BeValue(true);
+    [Fact] void False() => Parser.Parse("false").Should().BeValue(false);
 }

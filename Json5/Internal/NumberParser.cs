@@ -1,12 +1,26 @@
-﻿namespace Json5.Parsing;
+﻿#pragma warning disable IDE0065 // Misplaced using directive
+
+using Microsoft.FSharp.Core;
+
+using System.Text.Json.Nodes;
+
+namespace Json5.Internal;
+
+using FParsec.CSharp;
 
 using System.Globalization;
 using System.Numerics;
 using System.Text.Json.Nodes;
 
 using static FParsec.CharParsers;
+using static FParsec.CSharp.CharParsersCS;
+using static FParsec.CSharp.PrimitivesCS;
 
-public static partial class Json5Parser {
+using JsonNodeP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<JsonNode?>>;
+
+public static class NumberParser {
+    public static JsonNodeP Json5Number { get; set; }
+
     private const NumberLiteralOptions numLiteralOpts =
         NumberLiteralOptions.AllowBinary
         | NumberLiteralOptions.AllowHexadecimal
@@ -22,6 +36,20 @@ public static partial class Json5Parser {
 
     private static readonly CultureInfo invCult = CultureInfo.InvariantCulture;
 
+    static NumberParser() {
+        var infinitySymbol =
+            Choice(
+                CharP('∞', double.PositiveInfinity),
+                StringP("+∞", double.PositiveInfinity),
+                StringP("-∞", double.NegativeInfinity))
+            .Map(x => (JsonNode?)x) // deferred conversion ensures a new JsonNode is created every time
+            .Lbl("number");
+
+        var numLiteral = NumberLiteral(numLiteralOpts, label: "number").Map(ParseNumLiteral);
+
+        Json5Number = Choice(infinitySymbol, numLiteral);
+    }
+
     private static JsonNode? ParseNumLiteral(NumberLiteral nl) => nl switch {
         { IsInfinity: true, HasMinusSign: true } => double.NegativeInfinity,
         { IsInfinity: true } => double.PositiveInfinity,
@@ -35,7 +63,7 @@ public static partial class Json5Parser {
     };
 
     private static JsonNode ParseMoney(NumberLiteral nl) {
-        if (nl.SuffixLength > 1 || nl is { SuffixChar1: not 'm' and not 'M' })
+        if (nl.SuffixLength > 1 || nl.SuffixChar1 is not 'm' and not 'M')
             throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.");
 
         var s = nl.String.AsSpan(..^1);

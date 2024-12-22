@@ -11,7 +11,7 @@ using static FluentAssertions.FluentActions;
 public class ParserErrors {
     [Fact]
     void GeneralError() =>
-        Invoking(() => Json5.Parse("foo"))
+        Invoking(() => Parser.Parse("foo"))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 1
