@@ -90,7 +90,56 @@ public class Strings {
                 [Fact]
                 void MaxSizePlus1() =>
                     Invoking(() => Parser.Parse(@"'\u{110000}'"))
-                    .Should().Throw<Exception>().WithMessage("test");
+                    .Should().Throw<Exception>().WithMessage(
+                        """
+                        Error in Ln: 1 Col: 2
+                        '\u{110000}'
+                         ^
+                        Expecting: string character or escape sequence
+
+                        escape sequence could not be parsed because:
+                          Error in Ln: 1 Col: 12
+                          '\u{110000}'
+                                     ^
+                          Invalid Unicode escape sequence: \u{110000}
+                        
+                        """);
+
+                [Fact]
+                void Empty() =>
+                    Invoking(() => Parser.Parse(@"'\u{}'"))
+                    .Should().Throw<Exception>().WithMessage(
+                        """
+                        Error in Ln: 1 Col: 2
+                        '\u{}'
+                         ^
+                        Expecting: string character or escape sequence
+
+                        escape sequence could not be parsed because:
+                          Error in Ln: 1 Col: 5
+                          '\u{}'
+                              ^
+                          Expecting: hexadecimal digit
+                        
+                        """);
+
+                [Fact]
+                void UnclodesBraces() =>
+                    Invoking(() => Parser.Parse(@"'\u{64'"))
+                    .Should().Throw<Exception>().WithMessage(
+                        """
+                        Error in Ln: 1 Col: 2
+                        '\u{64'
+                         ^
+                        Expecting: string character or escape sequence
+
+                        escape sequence could not be parsed because:
+                          Error in Ln: 1 Col: 7
+                          '\u{64'
+                                ^
+                          Expecting: hexadecimal digit or '}'
+                        
+                        """);
             }
         }
 

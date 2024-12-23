@@ -8,6 +8,8 @@ namespace Json5.Internal;
 
 using FParsec.CSharp;
 
+using System.Globalization;
+
 using static ArrayParser;
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
@@ -36,11 +38,12 @@ public static class CommonParsers {
         Skip("//").AndR(SkipRestOfLine(skipNewline: true)),
         Skip("/*").AndR(SkipCharsTillString("*/", maxCount: int.MaxValue, skipString: true)))));
 
-    public static StringP HexEncodedAscii { get; set; } = Array(2, Hex)
-        .Map(x => new string((char)Convert.FromHexString(x)[0], 1));
+    public static StringP HexEncodedAscii { get; set; } = Array(2, Hex).Map(ConvertUtf8);
 
-    public static StringP HexEncodedUnicode { get; set; } = Array(4, Hex)
-        .Map(x => new string((char)ReadUInt16BigEndian(Convert.FromHexString(x)), 1));
+    public static StringP HexEncodedUnicode { get; set; } =
+        Choice(
+            Between('{', Many1Chars(Hex), '}').And(ParseUtf32),
+            Array(4, Hex).Map(ConvertUtf16));
 
     public static JsonNodeP Json5Value { get; set; } =
         Choice(
@@ -51,4 +54,19 @@ public static class CommonParsers {
             Json5String,
             Json5Number)
         .And(WSC);
+
+    private static string ConvertUtf8(char[] twoHexDigits)
+        => new((char)Convert.FromHexString(twoHexDigits)[0], 1);
+
+    private static string ConvertUtf16(char[] fourHexDigits)
+        => new((char)ReadUInt16BigEndian(Convert.FromHexString(fourHexDigits)), 1);
+
+    private static StringP ParseUtf32(string hexDigits) {
+        const NumberStyles sty = NumberStyles.AllowHexSpecifier;
+        var cult = CultureInfo.InvariantCulture;
+        const int maxCodePoint = 0x10FFFF;
+        return int.TryParse(hexDigits, sty, cult, out var utf32) && utf32 <= maxCodePoint
+            ? Return(char.ConvertFromUtf32(utf32))
+            : Fail<string>($@"Invalid Unicode escape sequence: \u{{{hexDigits}}}");
+    }
 }
