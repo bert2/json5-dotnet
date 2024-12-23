@@ -55,13 +55,13 @@ public static class CommonParsers {
             Json5Number)
         .And(WSC);
 
-    private static string ConvertUtf8(char[] twoHexDigits)
+    public static string ConvertUtf8(char[] twoHexDigits)
         => new((char)Convert.FromHexString(twoHexDigits)[0], 1);
 
-    private static string ConvertUtf16(char[] fourHexDigits)
+    public static string ConvertUtf16(char[] fourHexDigits)
         => new((char)ReadUInt16BigEndian(Convert.FromHexString(fourHexDigits)), 1);
 
-    private static StringP ParseUtf32(string hexDigits) {
+    public static StringP ParseUtf32(string hexDigits) {
         const NumberStyles sty = NumberStyles.AllowHexSpecifier;
         var cult = CultureInfo.InvariantCulture;
         const int maxCodePoint = 0x10FFFF;
