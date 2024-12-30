@@ -40,7 +40,6 @@ public class Strings {
                       '\{c}'
                         ^
                       Expecting: any char not in ‘123456789’
-
                     """));
 
             [Fact]
@@ -102,7 +101,6 @@ public class Strings {
                           '\u{110000}'
                                      ^
                           Invalid Unicode escape sequence: \u{110000}
-                        
                         """);
 
                 [Fact]
@@ -120,7 +118,6 @@ public class Strings {
                           '\u{}'
                               ^
                           Expecting: hexadecimal digit
-                        
                         """);
 
                 [Fact]
@@ -138,7 +135,6 @@ public class Strings {
                           '\u{64'
                                 ^
                           Expecting: hexadecimal digit or '}'
-                        
                         """);
             }
         }
@@ -154,7 +150,6 @@ public class Strings {
                                          ^
                     Note: The error occurred at the end of the line.
                     Expecting: escape sequence, string character or '"'
-
                     """);
 
             [Fact]
@@ -203,14 +198,14 @@ public class Strings {
                     Error in Ln: 2 Col: 1
                     Note: The error occurred on an empty line.
                     Expecting: escape sequence, string character or '"'
-                    
                     """");
 
             [Fact] void AcceptsEscapedLf() => Parser.Parse("'break \\\nhere'").Should().BeValue("break here");
             [Fact] void AcceptsEscapedCr() => Parser.Parse("'break \\\rhere'").Should().BeValue("break here");
             [Fact] void AcceptsEscapedCrLf() => Parser.Parse("'break \\\r\nhere'").Should().BeValue("break here");
-            [Fact] void AcceptsEscapedUnicodeLineSeparator() => Parser.Parse("'break \\\u2028here'").Should().BeValue("break here");
-            [Fact] void AcceptsEscapedUnicodeParagraphSeparator() => Parser.Parse("'break \\\u2029here'").Should().BeValue("break here");
+            [Fact] void AcceptsEscapedNextLineCharacter() => Parser.Parse("'break \\\u0085here'").Should().BeValue("break here");
+            [Fact] void AcceptsEscapedLineSeparator() => Parser.Parse("'break \\\u2028here'").Should().BeValue("break here");
+            [Fact] void AcceptsEscapedParagraphSeparator() => Parser.Parse("'break \\\u2029here'").Should().BeValue("break here");
         }
     }
 }

@@ -6,21 +6,48 @@ using FluentAssertions;
 
 using Helpers;
 
-using System.Text.Json.Nodes;
-
 using static FluentAssertions.FluentActions;
+using static Helpers.Util;
 
 public class Arrays {
-    [Fact] void Empty() => Parser.Parse("[]").Should().BeArray().And.BeEmpty();
-    [Fact] void Singleton() => Parser.Parse("[1]").Should().BeArray().And.ContainSingle().Which.Should().BeValue(1);
-    [Fact] void Multiple() => Parser.Parse("[1,2,3]").Should().BeArray().And.Equal(1, 2, 3);
+    [Fact] void Empty() => Parser.Parse("[]").Should().BeArray();
+    [Fact] void Singleton() => Parser.Parse("[1]").Should().BeArray(1);
+    [Fact] void Multiple() => Parser.Parse("[1,2,3]").Should().BeArray(1, 2, 3);
 
     [Fact]
     void MixedTypes() =>
         Parser.Parse("[null,1,0.2,3m,'foo',true]")
-        .Should().BeArray().And.Equal(null, 1, 0.2, 3m, "foo", true);
+        .Should().BeArray(null, 1, 0.2, 3m, "foo", true);
 
-    [Fact] void TrailingCommaAllowed() => Parser.Parse("['bar',]").Should().BeArray().And.Equal("bar");
+    [Fact]
+    void CommaRequired() =>
+        Invoking(() => Parser.Parse(
+            """
+            [
+                true
+                false
+            ]
+            """))
+        .Should().Throw<Exception>().WithMessage(
+            """
+            Error in Ln: 3 Col: 5
+                false
+                ^
+            Expecting: ',' or ']'
+            """);
+
+    [Fact] void TrailingCommaAllowed() => Parser.Parse("['bar',]").Should().BeArray("bar");
+
+    [Fact]
+    void LeadingCommaNotAllowed() =>
+        Invoking(() => Parser.Parse("[,'qux']"))
+        .Should().Throw<Exception>().WithMessage(
+            """
+            Error in Ln: 1 Col: 2
+            [,'qux']
+             ^
+            Expecting: array, bool, null, number, object, string or ']'
+            """);
 
     [Fact]
     void Whitespace() =>
@@ -39,7 +66,7 @@ public class Arrays {
                 ]   
 
             """)
-        .Should().BeArray().And.NotBeEmpty();
+        .Should().BeArray(1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 7, 1, 1, 1, 1, 8, 8, 8, 8, 1, 1, 1, 1, 1, 1, 1);
 
     [Fact]
     void SingleLineComments() =>
@@ -47,11 +74,11 @@ public class Arrays {
             """
             // foo
             [// bar
-            1// qux
-            ,// baz
-            ]// kyn
+            1// baz
+            ,// qux
+            ]// corge
             """)
-        .Should().BeArray().And.Equal(1);
+        .Should().BeArray(1);
 
     [Fact]
     void MultilineComments() =>
@@ -61,10 +88,10 @@ public class Arrays {
             */[/* bar
             */2/* qux
             */,/* baz
-            */]/* kyn
+            */]/* corge
             */
             """)
-        .Should().BeArray().And.Equal(2);
+        .Should().BeArray(2);
 
     [Fact]
     void MustBeClosed() =>
@@ -76,20 +103,19 @@ public class Arrays {
                        ^
             Note: The error occurred at the end of the input stream.
             Expecting: ',' or ']'
-            
             """);
 
     public class Nested {
-        [Fact] void Empty() => Parser.Parse("[[],[]]").Should().BeArray().And.Equal(new JsonArray(), new JsonArray());
+        [Fact] void Empty() => Parser.Parse("[[],[]]").Should().BeArray(Arr(), Arr());
 
         [Fact]
         void Multiple() =>
             Parser.Parse("[[1,2],[3,4],[5,6]]")
-            .Should().BeArray().And.Equal(new JsonArray(1, 2), new JsonArray(3, 4), new JsonArray(5, 6));
+            .Should().BeArray(Arr(1, 2), Arr(3, 4), Arr(5, 6));
 
         [Fact]
         void MixedTypes() =>
             Parser.Parse("[[null,1,0.2],[3m,'bar',true]]")
-            .Should().BeArray().And.Equal(new JsonArray(null, 1, 0.2), new JsonArray(3m, "bar", true));
+            .Should().BeArray(Arr(null, 1, 0.2), Arr(3m, "bar", true));
     }
 }

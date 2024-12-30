@@ -15,7 +15,7 @@ using static Helpers.Constants;
 public class Money {
     [Fact] void RequiresSuffix() => Parser.Parse("0.123456789m").Should().BeValue(0.123456789m);
     [Fact] void ParsesDoubleWithoutSuffix() => Parser.Parse("0.3333333333333333333333333333").Should().BeValue(0.3333333333333333d);
-    [Fact] void IgnoresSuffixCase() => Parser.Parse("1.23m").Should().Be(Parser.Parse("1.23M"));
+    [Fact] void IgnoresSuffixCase() => Parser.Parse("1.23m").Should().BeJson(Parser.Parse("1.23M"));
 
     [Fact]
     void OnlyMSuffixIsAllowed() =>

@@ -35,7 +35,7 @@ public static class CommonParsers {
     /// <summary>Skips all whitespace and comments until the next JSON5 token.</summary>
     public static UnitP WSC { get; set; } = Purify(SkipMany(Choice(
         SkipMany1(AnyOf(WhitespaceChars)),
-        Skip("//").AndR(SkipRestOfLine(skipNewline: true)),
+        Skip("//").AndR(SkipManyTill(NoneOf(BreakingWhitespaceChars), SkipAnyOf(BreakingWhitespaceChars).Or(EOF))),
         Skip("/*").AndR(SkipCharsTillString("*/", maxCount: int.MaxValue, skipString: true)))));
 
     public static StringP HexEncodedAscii { get; set; } = Array(2, Hex).Map(ConvertUtf8);

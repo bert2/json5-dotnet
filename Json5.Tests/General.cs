@@ -1,0 +1,77 @@
+﻿#pragma warning disable IDE0051 // Remove unused private members
+
+namespace Json5.Tests;
+
+using FluentAssertions;
+
+using Helpers;
+
+using System;
+
+using static FluentAssertions.FluentActions;
+
+public class General {
+    [Fact]
+    void Example() =>
+        Parser.Parse(
+            """
+            {    
+                foo: 'bar',
+                while: true,
+
+                this: 'is a \
+            multi-line string',
+
+                // this is an inline comment
+                here: 'is another', // inline comment
+
+                /* this is a block comment
+                   that continues on another line */
+
+                hex: 0xDEADbeef,
+                half: .5,
+                delta: +10,
+                to: Infinity,   // and beyond!
+
+                finally: 'a trailing comma',
+                oh: [
+                    "we shouldn't forget",
+                    'arrays can have',
+                    'trailing commas too',
+                ],
+            }
+            """)
+        .Should().BeObject(new {
+            foo = "bar",
+            @while = true,
+            @this = "is a multi-line string",
+            here = "is another",
+            hex = 0xDEADbeef,
+            half = .5,
+            delta = +10,
+            to = double.PositiveInfinity,
+            @finally = "a trailing comma",
+            oh = new[] { "we shouldn't forget", "arrays can have", "trailing commas too" }
+        });
+
+    [Fact]
+    void GeneralError() =>
+        Invoking(() => Parser.Parse("foo"))
+        .Should().Throw<Exception>().WithMessage(
+            """
+            Error in Ln: 1 Col: 1
+            foo
+            ^
+            Expecting: array, bool, null, number, object or string
+            """);
+
+    [Fact]
+    void Empty() =>
+        Invoking(() => Parser.Parse(""))
+        .Should().Throw<Exception>().WithMessage(
+            """
+            Error in Ln: 1 Col: 1
+            Note: The error occurred at the end of the input stream.
+            Expecting: array, bool, null, number, object or string
+            """);
+}

@@ -10,7 +10,7 @@ using System.Numerics;
 
 public static partial class Integers {
     public partial class Bin {
-        [Fact] void IgnoreCase() => Parser.Parse("0b010101").Should().Be(Parser.Parse("0B010101"));
+        [Fact] void IgnoreCase() => Parser.Parse("0b010101").Should().BeJson(Parser.Parse("0B010101"));
         [Fact] void Positive() => Parser.Parse("+0b1101010").Should().BeValue(106);
         [Fact] void Negative() => Parser.Parse("-0b1101110001").Should().BeValue(-881);
         [Fact] void LeadingZeros() => Parser.Parse("0b000000001").Should().BeValue(1);
@@ -77,7 +77,7 @@ public static partial class Integers {
     }
 
     public partial class Hex {
-        [Fact] void IgnoreCase() => Parser.Parse("0xABCDEF").Should().Be(Parser.Parse("0Xabcdef"));
+        [Fact] void IgnoreCase() => Parser.Parse("0xABCDEF").Should().BeJson(Parser.Parse("0Xabcdef"));
         [Fact] void Positive() => Parser.Parse("+0x0023FF").Should().BeValue(9215);
         [Fact] void Negative() => Parser.Parse("-0x12A").Should().BeValue(-298);
         [Fact] void LeadingZeros() => Parser.Parse("0x000B").Should().BeValue(11);

@@ -7,5 +7,5 @@ using System.Text.Json.Nodes;
 using static Internal.Json5Parser;
 
 public static class Parser {
-    public static JsonNode? Parse(string json) => Json5.Run(json).GetResult();
+    public static JsonNode? Parse(string json5) => Json5.Run(json5).GetResult();
 }

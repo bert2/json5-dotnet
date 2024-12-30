@@ -32,7 +32,7 @@ public class Floats {
     [Fact] void WithoutIntegerPart() => Parser.Parse(".0123").Should().BeValue(.0123);
     [Fact] void WithoutFractionDigits() => Parser.Parse("1.").Should().BeValue(1d);
     [Fact] void WithExponent() => Parser.Parse("1.2e3").Should().BeValue(1.2e3);
-    [Fact] void IgnoresExponentIndicatorCase() => Parser.Parse("1e-3").Should().Be(Parser.Parse("1E-3"));
+    [Fact] void IgnoresExponentIndicatorCase() => Parser.Parse("1e-3").Should().BeJson(Parser.Parse("1E-3"));
 
     [Fact] void MinDouble() => Parser.Parse("-1.7976931348623157E+308").Should().BeValue(double.MinValue);
     [Fact] void MaxDouble() => Parser.Parse("1.7976931348623157E+308").Should().BeValue(double.MaxValue);
