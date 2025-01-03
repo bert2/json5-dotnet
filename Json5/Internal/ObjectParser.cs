@@ -10,7 +10,6 @@ using FParsec;
 using FParsec.CSharp;
 
 using System.Text;
-using System.Text.RegularExpressions;
 
 using static CommonParsers;
 using static FParsec.CSharp.CharParsersCS;
@@ -21,7 +20,7 @@ using static StringParser;
 using Chars = FParsec.CharStream<Unit>;
 using JsonNodeP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<JsonNode?>>;
 
-public static partial class ObjectParser {
+public static class ObjectParser {
     public static JsonNodeP Json5Object { get; set; }
 
     static ObjectParser() {
@@ -38,8 +37,10 @@ public static partial class ObjectParser {
                 normalization: NormalizationForm.FormC,
                 normalizeBeforeValidation: false,
                 allowJoinControlChars: true,
-                preCheckStart: FSharpFunc.From((char _) => true),    // Accept anything in pre-check, because 1st pass already made sure there
-                preCheckContinue: FSharpFunc.From((char _) => true), // are no raw/unencoded whitespace or object literal tokens in the input.
+                // Accept anything in pre-check, because 1st pass already made sure there
+                // are no raw/unencoded whitespace or object literal tokens in the input.
+                preCheckStart: FSharpFunc.From((char _) => true),
+                preCheckContinue: FSharpFunc.From((char _) => true),
                 allowAllNonAsciiCharsInPreCheck: false,
                 label: "identifier",
                 invalidCharMessage: "The identifier contains an invalid character at the indicated position."))
@@ -88,30 +89,4 @@ public static partial class ObjectParser {
             .Map(props => (JsonNode?)new JsonObject(props))
             .Lbl("object");
     }
-
-    public static void SkipEscaped(this Chars chars, long utf16Offset) {
-        if (utf16Offset < 0) throw new ArgumentOutOfRangeException(nameof(utf16Offset), "Must be positive.");
-
-        for (; utf16Offset > 0; utf16Offset--)
-            chars.Skip(chars.MatchUnicodeEscape(out var len) ? len : 1);
-    }
-
-    public static bool MatchUnicodeEscape(this Chars chars, out int length) {
-        if (chars.Match(Utf16Escape()).Success) {
-            length = 6;
-            return true;
-        } else if (chars.Match(Utf32Escape()) is { Success: true, Length: var len }) {
-            length = len;
-            return true;
-        } else {
-            length = 0;
-            return false;
-        }
-    }
-
-    [GeneratedRegex(@"\A\\u[\da-fA-F]{4}")]
-    public static partial Regex Utf16Escape();
-
-    [GeneratedRegex(@"\A\\u\{[\da-fA-F]+\}")]
-    public static partial Regex Utf32Escape();
 }
