@@ -8,12 +8,26 @@ using Helpers;
 
 using System.Numerics;
 
+using static FluentAssertions.FluentActions;
+
 public static partial class Integers {
     public partial class Bin {
         [Fact] void IgnoreCase() => Parser.Parse("0b010101").Should().BeJson(Parser.Parse("0B010101"));
         [Fact] void Positive() => Parser.Parse("+0b1101010").Should().BeValue(106);
         [Fact] void Negative() => Parser.Parse("-0b1101110001").Should().BeValue(-881);
         [Fact] void LeadingZeros() => Parser.Parse("0b000000001").Should().BeValue(1);
+
+        [Fact]
+        void Empty() =>
+            Invoking(() => Parser.Parse("0b"))
+            .Should().Throw<Exception>().WithMessage(
+                """
+                Error in Ln: 1 Col: 3
+                0b
+                  ^
+                Note: The error occurred at the end of the input stream.
+                Expecting: binary digit
+                """);
 
         [Fact] void MinInt() => Parser.Parse("-0b10000000000000000000000000000000").Should().BeValue(int.MinValue);
         [Fact] void MinIntMinus1() => Parser.Parse("-0b10000000000000000000000000000001").Should().BeValue(int.MinValue - 1L);
@@ -81,6 +95,19 @@ public static partial class Integers {
         [Fact] void Positive() => Parser.Parse("+0x0023FF").Should().BeValue(9215);
         [Fact] void Negative() => Parser.Parse("-0x12A").Should().BeValue(-298);
         [Fact] void LeadingZeros() => Parser.Parse("0x000B").Should().BeValue(11);
+        [Fact] void WithFakeExponent() => Parser.Parse("0xC8e4").Should().BeValue(51428);
+
+        [Fact]
+        void Empty() =>
+            Invoking(() => Parser.Parse("0x"))
+            .Should().Throw<Exception>().WithMessage(
+                """
+                Error in Ln: 1 Col: 3
+                0x
+                  ^
+                Note: The error occurred at the end of the input stream.
+                Expecting: hexadecimal digit
+                """);
 
         [Fact] void MinInt() => Parser.Parse("-0x80000000").Should().BeValue(int.MinValue);
         [Fact] void MinIntMinus1() => Parser.Parse("-0x80000001").Should().BeValue(int.MinValue - 1L);

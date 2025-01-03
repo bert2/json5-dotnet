@@ -106,6 +106,22 @@ public class Objects {
             Parser.Parse("{ 'boo! 👻': 666, }")
             .Should().BeJson(new JsonObject([KeyValuePair.Create("boo! 👻", (JsonNode?)666)]));
 
+        [Fact]
+        void Duplicates() =>
+            Invoking(() => Parser.Parse("{a: 1, a: 2}"))
+            .Should().Throw<Exception>().WithMessage("An item with the same key has already been added. Key: a (Parameter 'key')");
+
+        [Fact]
+        void InvalidLeadingComma() =>
+            Invoking(() => Parser.Parse("{, a: 1}"))
+            .Should().Throw<Exception>().WithMessage(
+                """
+                Error in Ln: 1 Col: 2
+                {, a: 1}
+                 ^
+                Expecting: property or '}'
+                """);
+
         public class NoQuotes {
             [Fact] void Allowed() => Parser.Parse("{ foo: 1, }").Should().BeObject(new { foo = 1 });
 
@@ -135,6 +151,17 @@ public class Objects {
                      ^
                     Note: The error occurred at the end of the input stream.
                     Expecting: property or '}'
+                    """);
+
+            [Fact]
+            void MustNotStartWithDigit() =>
+                Invoking(() => Parser.Parse("{10twenty:1}"))
+                .Should().Throw<Exception>().WithMessage(
+                    """
+                    Error in Ln: 1 Col: 2
+                    {10twenty:1}
+                     ^
+                    The identifier contains an invalid character at the indicated position.
                     """);
 
             [Fact]
