@@ -92,7 +92,7 @@ public static partial class ObjectParser {
     public static void SkipEscaped(this Chars chars, long utf16Offset) {
         if (utf16Offset < 0) throw new ArgumentOutOfRangeException(nameof(utf16Offset), "Must be positive.");
 
-        for(; utf16Offset > 0; utf16Offset--)
+        for (; utf16Offset > 0; utf16Offset--)
             chars.Skip(chars.MatchUnicodeEscape(out var len) ? len : 1);
     }
 
