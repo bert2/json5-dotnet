@@ -15,14 +15,14 @@ public static class Comments {
             """
             // this is a string
             'hello world'
-            """).Should().BeValue("hello world");
+            """).Should().Be("hello world");
 
-        [Fact] void Trailing() => Parser.Parse("true // this is a bool").Should().BeValue(true);
+        [Fact] void Trailing() => Parser.Parse("true // this is a bool").Should().Be(true);
 
         [Fact]
         void InsideString() =>
             Parser.Parse("\"This inline comment // isn't really an inline comment.\"")
-            .Should().BeValue("This inline comment // isn't really an inline comment.");
+            .Should().Be("This inline comment // isn't really an inline comment.");
 
         [Fact]
         void CommentOnlyNotAllowed() =>
@@ -36,12 +36,12 @@ public static class Comments {
                 Expecting: array, bool, null, number, object or string
                 """);
 
-        [Fact] void TerminatedWithCr() => Parser.Parse("//comment\r1.23").Should().BeValue(1.23);
-        [Fact] void TerminatedWithLf() => Parser.Parse("//comment\n1.23").Should().BeValue(1.23);
-        [Fact] void TerminatedWithCrLf() => Parser.Parse("//comment\r\n1.23").Should().BeValue(1.23);
-        [Fact] void TerminatedWithNextLineCharacter() => Parser.Parse("//comment\u00851.23").Should().BeValue(1.23);
-        [Fact] void TerminatedWithLineSeparator() => Parser.Parse("//comment\u20281.23").Should().BeValue(1.23);
-        [Fact] void TerminatedWithParagraphSeparator() => Parser.Parse("//comment\u20291.23").Should().BeValue(1.23);
+        [Fact] void TerminatedWithCr() => Parser.Parse("//comment\r1.23").Should().Be(1.23);
+        [Fact] void TerminatedWithLf() => Parser.Parse("//comment\n1.23").Should().Be(1.23);
+        [Fact] void TerminatedWithCrLf() => Parser.Parse("//comment\r\n1.23").Should().Be(1.23);
+        [Fact] void TerminatedWithNextLineCharacter() => Parser.Parse("//comment\u00851.23").Should().Be(1.23);
+        [Fact] void TerminatedWithLineSeparator() => Parser.Parse("//comment\u20281.23").Should().Be(1.23);
+        [Fact] void TerminatedWithParagraphSeparator() => Parser.Parse("//comment\u20291.23").Should().Be(1.23);
     }
 
     public class Multiline {
@@ -50,7 +50,7 @@ public static class Comments {
             """
             /* there is a money value
                on this line */ 23.45m
-            """).Should().BeValue(23.45m);
+            """).Should().Be(23.45m);
 
         [Fact]
         void Trailing() =>
@@ -73,12 +73,12 @@ public static class Comments {
                  **/
                 true
                 """)
-            .Should().BeValue(true);
+            .Should().Be(true);
 
         [Fact]
         void InsideString() =>
             Parser.Parse("\"This /* block comment */ isn't really a block comment.\"")
-            .Should().BeValue("This /* block comment */ isn't really a block comment.");
+            .Should().Be("This /* block comment */ isn't really a block comment.");
 
         [Fact]
         void MustBeClosed() =>

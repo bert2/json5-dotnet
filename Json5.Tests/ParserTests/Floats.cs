@@ -15,13 +15,13 @@ using static Helpers.Constants;
 
 public class Floats {
     public class Infinity {
-        [Fact] void Positive() => Parser.Parse("Infinity").Should().BeValue(double.PositiveInfinity);
-        [Fact] void Negative() => Parser.Parse("-Infinity").Should().BeValue(double.NegativeInfinity);
-        [Fact] void ExplicitPositive() => Parser.Parse("+Infinity").Should().BeValue(double.PositiveInfinity);
-        [Fact] void Short() => Parser.Parse("+Inf").Should().BeValue(double.PositiveInfinity);
-        [Fact] void Symbol() => Parser.Parse("-∞").Should().BeValue(double.NegativeInfinity);
-        [Fact] void UpperCase() => Parser.Parse("INFINITY").Should().BeValue(double.PositiveInfinity);
-        [Fact] void LowerCase() => Parser.Parse("-infinity").Should().BeValue(double.NegativeInfinity);
+        [Fact] void Positive() => Parser.Parse("Infinity").Should().Be(double.PositiveInfinity);
+        [Fact] void Negative() => Parser.Parse("-Infinity").Should().Be(double.NegativeInfinity);
+        [Fact] void ExplicitPositive() => Parser.Parse("+Infinity").Should().Be(double.PositiveInfinity);
+        [Fact] void Short() => Parser.Parse("+Inf").Should().Be(double.PositiveInfinity);
+        [Fact] void Symbol() => Parser.Parse("-∞").Should().Be(double.NegativeInfinity);
+        [Fact] void UpperCase() => Parser.Parse("INFINITY").Should().Be(double.PositiveInfinity);
+        [Fact] void LowerCase() => Parser.Parse("-infinity").Should().Be(double.NegativeInfinity);
     }
 
     public class NaN {
@@ -31,14 +31,15 @@ public class Floats {
     }
 
     public class Exponent {
-        [Fact] void Example() => Parser.Parse("1.2e3").Should().BeValue(1.2e3);
-        [Fact] void IgnoresCase() => Parser.Parse("1e3").Should().BeJson(Parser.Parse("1E3"));
-        [Fact] void WithoutFractionDigits() => Parser.Parse("5.e4").Should().BeValue(5.0e4);
-        [Fact] void NegativeInteger() => Parser.Parse("2e-23").Should().BeValue(2e-23);
-        [Fact] void PositiveInteger() => Parser.Parse("1e+2").Should().BeValue(1e+2);
-        [Fact] void Zero() => Parser.Parse("5e0").Should().BeValue(5e0);
-        [Fact] void NegativeZero() => Parser.Parse("5e-0").Should().BeValue(5e-0);
-        [Fact] void PositiveZero() => Parser.Parse("5e+0").Should().BeValue(5e+0);
+        [Fact] void Example() => Parser.Parse("1.2e3").Should().Be(1.2e3);
+        [Fact] void LowerCaseExponentIndicator() => Parser.Parse("1e3").Should().Be(1e3);
+        [Fact] void UpperCaseExponentIndicator() => Parser.Parse("1E3").Should().Be(1e3);
+        [Fact] void WithoutFractionDigits() => Parser.Parse("5.e4").Should().Be(5.0e4);
+        [Fact] void NegativeInteger() => Parser.Parse("2e-23").Should().Be(2e-23);
+        [Fact] void PositiveInteger() => Parser.Parse("1e+2").Should().Be(1e+2);
+        [Fact] void Zero() => Parser.Parse("5e0").Should().Be(5e0);
+        [Fact] void NegativeZero() => Parser.Parse("5e-0").Should().Be(5e-0);
+        [Fact] void PositiveZero() => Parser.Parse("5e+0").Should().Be(5e+0);
 
         [Fact]
         void Float() =>
@@ -90,19 +91,19 @@ public class Floats {
 
     }
 
-    [Fact] void LeadingZero() => Parser.Parse("0.123").Should().BeValue(0.123);
-    [Fact] void NegativeLeadingZero() => Parser.Parse("-0.123").Should().BeValue(-0.123);
-    [Fact] void LeadingZeros() => Parser.Parse("000.123").Should().BeValue(0.123);
-    [Fact] void WithoutIntegerPart() => Parser.Parse(".0123").Should().BeValue(.0123);
-    [Fact] void NegativeWithoutIntegerPart() => Parser.Parse("-.5").Should().BeValue(-.5);
-    [Fact] void PositiveWithoutIntegerPart() => Parser.Parse("+.5").Should().BeValue(+.5);
-    [Fact] void WithoutFractionDigits() => Parser.Parse("1.").Should().BeValue(1d);
-    [Fact] void NegativeWithoutFractionDigits() => Parser.Parse("-1.").Should().BeValue(-1d);
-    [Fact] void PositiveWithoutFractionDigits() => Parser.Parse("+1.").Should().BeValue(+1d);
+    [Fact] void LeadingZero() => Parser.Parse("0.123").Should().Be(0.123);
+    [Fact] void NegativeLeadingZero() => Parser.Parse("-0.123").Should().Be(-0.123);
+    [Fact] void LeadingZeros() => Parser.Parse("000.123").Should().Be(0.123);
+    [Fact] void WithoutIntegerPart() => Parser.Parse(".0123").Should().Be(.0123);
+    [Fact] void NegativeWithoutIntegerPart() => Parser.Parse("-.5").Should().Be(-.5);
+    [Fact] void PositiveWithoutIntegerPart() => Parser.Parse("+.5").Should().Be(+.5);
+    [Fact] void WithoutFractionDigits() => Parser.Parse("1.").Should().Be(1d);
+    [Fact] void NegativeWithoutFractionDigits() => Parser.Parse("-1.").Should().Be(-1d);
+    [Fact] void PositiveWithoutFractionDigits() => Parser.Parse("+1.").Should().Be(+1d);
 
-    [Fact] void MinDouble() => Parser.Parse("-1.7976931348623157E+308").Should().BeValue(double.MinValue);
-    [Fact] void MaxDouble() => Parser.Parse("1.7976931348623157E+308").Should().BeValue(double.MaxValue);
-    [Fact] void Epsilon() => Parser.Parse("5E-324").Should().BeValue(double.Epsilon);
+    [Fact] void MinDouble() => Parser.Parse("-1.7976931348623157E+308").Should().Be(double.MinValue);
+    [Fact] void MaxDouble() => Parser.Parse("1.7976931348623157E+308").Should().Be(double.MaxValue);
+    [Fact] void Epsilon() => Parser.Parse("5E-324").Should().Be(double.Epsilon);
 
     [Fact]
     void LoneDecimalPoint() =>

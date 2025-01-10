@@ -44,6 +44,28 @@ public record JsonNodeAssertions(JsonNode Subject) {
         return new AndConstraint<JsonNodeAssertions>(this);
     }
 
+    public AndConstraint<JsonNodeAssertions> Be<T>(T expected, string because = "", params object[] becauseArgs) {
+        var actual = Subject.Deserialize<T>(opts);
+        actual.Should().BeEquivalentTo(
+            expected,
+            opts => opts.WithAutoConversion().ThrowingOnMissingMembers(),
+            because,
+            becauseArgs);
+        return new(new JsonNodeAssertions(this));
+    }
+
+    public AndConstraint<JsonNodeAssertions> Be(JsonObject expected) => Be((JsonNode)expected);
+
+    public AndConstraint<JsonNodeAssertions> Be(JsonArray expected) => Be((JsonNode)expected);
+
+    public AndConstraint<JsonNodeAssertions> Be(JsonNode? expected) {
+        Execute.Assertion
+            .ForCondition(JsonNode.DeepEquals(Subject, expected))
+            .WithDefaultIdentifier(identifier)
+            .FailWith("Expected {context} to match {0}, but found {1}.", expected, Subject);
+        return new(new JsonNodeAssertions(this));
+    }
+
     public AndConstraint<JsonNodeAssertions> BeJson(JsonNode? expected, string because = "", params object[] becauseArgs) {
         switch (expected?.GetValueKind()) {
             case null:
@@ -113,9 +135,6 @@ public record JsonNodeAssertions(JsonNode Subject) {
         return new AndConstraint<JsonNodeAssertions>(this);
     }
 
-    public AndConstraint<JsonNodeAssertions> BeOfType<TExpected>(string because = "", params object[] becauseArgs)
-        => BeOfType(typeof(TExpected), because, becauseArgs);
-
     public AndConstraint<JsonNodeAssertions> BeValue<T>(T expected, string because = "", params object[] becauseArgs)
         where T : notnull {
         BeOfType(expected.GetType());
@@ -142,6 +161,18 @@ public record JsonNodeAssertions(JsonNode Subject) {
         actual.Zip(expected).ForEach(x => x.First.Should().Be(x.Second));
 
         return new(new JsonNodeAssertions(this));
+    }
+
+    public AndConstraint<JsonNodeAssertions> BeEmptyObject() {
+        Subject.Should().HaveValueKind(JsonValueKind.Object);
+        var props = Subject.AsObject().Count;
+
+        Execute.Assertion
+            .ForCondition(props == 0)
+            .WithDefaultIdentifier(identifier)
+            .FailWith("Expected {context} at path {1} to be an emty object, but found {0} properties.", props, Subject.GetPath());
+
+        return new AndConstraint<JsonNodeAssertions>(this);
     }
 
     public AndConstraint<JsonNodeAssertions> BeObject(object expected) {

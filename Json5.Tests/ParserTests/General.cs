@@ -41,7 +41,7 @@ public class General {
                 ],
             }
             """)
-        .Should().BeObject(new {
+        .Should().Be(new {
             foo = "bar",
             @while = true,
             @this = "is a multi-line string",

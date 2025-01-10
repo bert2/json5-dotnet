@@ -5,6 +5,7 @@ using FsCheck.Fluent;
 using FsCheck.Xunit;
 
 using System.Numerics;
+using System.Text.Json;
 
 using static Helpers.Constants;
 
@@ -55,7 +56,7 @@ public static partial class Integers {
         }
     }
 
-    private static T Deserialize<T>(string s) => Parser.Parse(s)!.GetValue<T>();
+    private static T Deserialize<T>(string s) => Parser.Parse(s)!.Deserialize<T>();
 
     // generates uint values greater than int.MaxValue
     private static readonly Arbitrary<uint> @uint = ArbMap.Default.ArbFor<uint>()

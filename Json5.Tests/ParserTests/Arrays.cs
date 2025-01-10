@@ -6,18 +6,19 @@ using FluentAssertions;
 
 using Helpers;
 
+using System.Text.Json.Nodes;
+
 using static FluentAssertions.FluentActions;
-using static Helpers.Util;
 
 public class Arrays {
-    [Fact] void Empty() => Parser.Parse("[]").Should().BeArray();
-    [Fact] void Singleton() => Parser.Parse("[1]").Should().BeArray(1);
-    [Fact] void Multiple() => Parser.Parse("[1,2,3]").Should().BeArray(1, 2, 3);
+    [Fact] void Empty() => Parser.Parse("[]").Should().Be(Array.Empty<object>());
+    [Fact] void Singleton() => Parser.Parse("[1]").Should().Be<int[]>([1]);
+    [Fact] void Multiple() => Parser.Parse("[1,2,3]").Should().Be<int[]>([1, 2, 3]);
 
     [Fact]
     void MixedTypes() =>
         Parser.Parse("[null,1,0.2,3m,'foo',true]")
-        .Should().BeArray(null, 1, 0.2, 3m, "foo", true);
+        .Should().Be(new JsonArray(null, 1, 0.2, 3m, "foo", true));
 
     [Fact]
     void CommaRequired() =>
@@ -36,7 +37,7 @@ public class Arrays {
             Expecting: ',' or ']'
             """);
 
-    [Fact] void TrailingCommaAllowed() => Parser.Parse("['bar',]").Should().BeArray("bar");
+    [Fact] void TrailingCommaAllowed() => Parser.Parse("['bar',]").Should().Be<string[]>(["bar"]);
 
     [Fact]
     void LeadingCommaNotAllowed() =>
@@ -66,7 +67,7 @@ public class Arrays {
                 ]   
 
             """)
-        .Should().BeArray(1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 7, 1, 1, 1, 1, 8, 8, 8, 8, 1, 1, 1, 1, 1, 1, 1);
+        .Should().Be<int[]>([1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 7, 1, 1, 1, 1, 8, 8, 8, 8, 1, 1, 1, 1, 1, 1, 1]);
 
     [Fact]
     void SingleLineComments() =>
@@ -78,7 +79,7 @@ public class Arrays {
             ,// qux
             ]// corge
             """)
-        .Should().BeArray(1);
+        .Should().Be<int[]>([1]);
 
     [Fact]
     void MultilineComments() =>
@@ -91,7 +92,7 @@ public class Arrays {
             */]/* corge
             */
             """)
-        .Should().BeArray(2);
+        .Should().Be<int[]>([2]);
 
     [Fact]
     void MustBeClosed() =>
@@ -106,16 +107,16 @@ public class Arrays {
             """);
 
     public class Nested {
-        [Fact] void Empty() => Parser.Parse("[[],[]]").Should().BeArray(Arr(), Arr());
+        [Fact] void Empty() => Parser.Parse("[[],[]]").Should().Be<object[][]>([[], []]);
 
         [Fact]
         void Multiple() =>
             Parser.Parse("[[1,2],[3,4],[5,6]]")
-            .Should().BeArray(Arr(1, 2), Arr(3, 4), Arr(5, 6));
+            .Should().Be<int[][]>([[1, 2], [3, 4], [5, 6]]);
 
         [Fact]
         void MixedTypes() =>
             Parser.Parse("[[null,1,0.2],[3m,'bar',true]]")
-            .Should().BeArray(Arr(null, 1, 0.2), Arr(3m, "bar", true));
+            .Should().Be(new JsonArray(new JsonArray(null, 1, 0.2), new JsonArray(3m, "bar", true)));
     }
 }

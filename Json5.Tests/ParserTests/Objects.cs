@@ -9,22 +9,21 @@ using Helpers;
 using System.Text.Json.Nodes;
 
 using static FluentAssertions.FluentActions;
-using static Helpers.Util;
 
 public class Objects {
-    [Fact] void Empty() => Parser.Parse("{}").Should().BeObject(new { });
+    [Fact] void Empty() => Parser.Parse("{}").Should().BeEmptyObject();
 
     [Fact]
     void PrimitiveProperties() =>
         Parser.Parse("{ a: null, b: true, c: 1, d: .1, e: 1m, f: 'hi' }")
-        .Should().BeObject(new { a = (string?)null, b = true, c = 1, d = .1, e = 1m, f = "hi" });
+        .Should().Be(new { a = (string?)null, b = true, c = 1, d = .1, e = 1m, f = "hi" });
 
     [Fact]
     void ComplexProperties() =>
         Parser.Parse("{ a: { b: [], c: { d: [] } } }")
-        .Should().BeObject(new { a = new { b = Arr(), c = new { d = Arr() } } });
+        .Should().Be(new { a = new { b = Array.Empty<object>(), c = new { d = Array.Empty<object>() } } });
 
-    [Fact] void TrailingCommaAllowed() => Parser.Parse("{ a: 1, }").Should().BeObject(new { a = 1 });
+    [Fact] void TrailingCommaAllowed() => Parser.Parse("{ a: 1, }").Should().Be(new { a = 1 });
 
     [Fact]
     void OnlyCommaNotAllowed() =>
@@ -53,7 +52,7 @@ public class Objects {
                }
 
             """)
-        .Should().BeObject(new { a = 1 });
+        .Should().Be(new { a = 1 });
 
     [Fact]
     void SingleLineComments() =>
@@ -67,7 +66,7 @@ public class Objects {
             ,// garply
             }// waldo
             """)
-        .Should().BeObject(new { a = 1 });
+        .Should().Be(new { a = 1 });
 
     [Fact]
     void MultilineComments() =>
@@ -82,7 +81,7 @@ public class Objects {
             */}/* waldo
             */
             """)
-        .Should().BeObject(new { a = 1 });
+        .Should().Be(new { a = 1 });
 
     [Fact]
     void MustBeClosed() =>
@@ -97,14 +96,14 @@ public class Objects {
             """);
 
     public class MemberNames {
-        [Fact] void SingleQuotes() => Parser.Parse("{ 'foo': 1, }").Should().BeObject(new { foo = 1 });
+        [Fact] void SingleQuotes() => Parser.Parse("{ 'foo': 1, }").Should().Be(new { foo = 1 });
 
-        [Fact] void DoubleQuotes() => Parser.Parse("{ \"foo\": 1, }").Should().BeObject(new { foo = 1 });
+        [Fact] void DoubleQuotes() => Parser.Parse("{ \"foo\": 1, }").Should().Be(new { foo = 1 });
 
         [Fact]
         void QuotesAllowEverything() =>
-            Parser.Parse("{ 'boo! 👻': 666, }")
-            .Should().BeJson(new JsonObject([KeyValuePair.Create("boo! 👻", (JsonNode?)666)]));
+            Parser.Parse("{ 'boo! 👻': 666 }")
+            .Should().Be(new JsonObject([KeyValuePair.Create("boo! 👻", (JsonNode?)666)]));
 
         [Fact]
         void Duplicates() =>
@@ -123,23 +122,23 @@ public class Objects {
                 """);
 
         public class NoQuotes {
-            [Fact] void Allowed() => Parser.Parse("{ foo: 1, }").Should().BeObject(new { foo = 1 });
+            [Fact] void Allowed() => Parser.Parse("{ foo: 1, }").Should().Be(new { foo = 1 });
 
             [Fact]
             void DollarAllowed() =>
                 Parser.Parse("{ $foo: 1, }")
-                .Should().BeJson(new JsonObject([KeyValuePair.Create("$foo", (JsonNode?)1)]));
+                .Should().Be(new JsonObject([KeyValuePair.Create("$foo", (JsonNode?)1)]));
 
-            [Fact] void UnderscoreAllowed() => Parser.Parse("{ _foo: 1, }").Should().BeObject(new { _foo = 1 });
+            [Fact] void UnderscoreAllowed() => Parser.Parse("{ _foo: 1, }").Should().Be(new { _foo = 1 });
 
             [Fact]
             void UmlautAllowed() =>
                 Parser.Parse("{ ümlåût: 'ümlaüt is löve, ümlaüt is lïfe' }")
-                .Should().BeObject(new { ümlåût = "ümlaüt is löve, ümlaüt is lïfe" });
+                .Should().Be(new { ümlåût = "ümlaüt is löve, ümlaüt is lïfe" });
 
-            [Fact] void NoQuotesAllowUtf16Escapes() => Parser.Parse("{ \\u005Ffoo: 1, }").Should().BeObject(new { _foo = 1 });
+            [Fact] void NoQuotesAllowUtf16Escapes() => Parser.Parse("{ \\u005Ffoo: 1, }").Should().Be(new { _foo = 1 });
 
-            [Fact] void NoQuotesAllowUtf32Escapes() => Parser.Parse("{ \\u{5F}foo: 1, }").Should().BeObject(new { _foo = 1 });
+            [Fact] void NoQuotesAllowUtf32Escapes() => Parser.Parse("{ \\u{5F}foo: 1, }").Should().Be(new { _foo = 1 });
 
             [Fact]
             void Missing() =>
