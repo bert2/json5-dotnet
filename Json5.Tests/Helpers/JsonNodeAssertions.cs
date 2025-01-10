@@ -10,14 +10,14 @@ using System.Text.Json.Serialization;
 
 public record JsonNodeAssertions(JsonNode Subject) {
     private const string identifier = nameof(JsonNode);
-    private static JsonSerializerOptions Opts => new() { NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals };
+    private static readonly JsonSerializerOptions opts = new() { NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals };
 
     public AndConstraint<JsonNodeAssertions> BeNull(string because = "", params object[] becauseArgs) {
         Execute.Assertion
             .ForCondition(Subject is null)
             .BecauseOf(because, becauseArgs)
             .WithDefaultIdentifier(identifier)
-            .FailWith("Expected {context} at path {1} to be <null>{reason}, but found {0}.", Subject?.ToJsonString(Opts), Subject?.GetPath());
+            .FailWith("Expected {context} at path {1} to be <null>{reason}, but found {0}.", Subject?.ToJsonString(opts), Subject?.GetPath());
 
         return new AndConstraint<JsonNodeAssertions>(this);
     }
@@ -39,7 +39,7 @@ public record JsonNodeAssertions(JsonNode Subject) {
             .WithDefaultIdentifier(identifier)
             .FailWith(
                 "Expected {context} to be double.NaN{reason}, but found {0}.",
-                Subject?.ToJsonString(Opts));
+                Subject?.ToJsonString(opts));
 
         return new AndConstraint<JsonNodeAssertions>(this);
     }
@@ -77,8 +77,8 @@ public record JsonNodeAssertions(JsonNode Subject) {
                     .WithDefaultIdentifier(identifier)
                     .FailWith(
                         "Expected {context} at path {2} to be {0}{reason}, but found {1}.",
-                        Subject.ToJsonString(Opts),
-                        expected.ToJsonString(Opts),
+                        Subject.ToJsonString(opts),
+                        expected.ToJsonString(opts),
                         Subject.GetPath());
                 break;
         }

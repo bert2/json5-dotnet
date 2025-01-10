@@ -1,4 +1,4 @@
-﻿namespace Json5.Tests;
+﻿namespace Json5.Tests.ParserTests;
 
 using FsCheck;
 using FsCheck.Fluent;
