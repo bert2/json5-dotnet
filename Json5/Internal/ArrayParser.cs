@@ -20,7 +20,7 @@ using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 public static class ArrayParser {
     public static JsonNodeP Json5Array { get; set; }
 
-    public static StringP Json5ArrayS { get; set; } = Fail<string>("nope").Lbl("array");
+    public static StringP Json5ArrayS { get; set; }
 
     static ArrayParser() {
         var items = Many(Rec(() => Json5Value), sep: Skip(',').AndR(WSC), canEndWithSep: true);

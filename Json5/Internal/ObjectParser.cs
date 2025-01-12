@@ -91,5 +91,19 @@ public static class ObjectParser {
             Between(Skip('{').AndR(WSC), properties, Skip('}'))
             .Map(props => (JsonNode?)new JsonObject(props))
             .Lbl("object");
+
+        var propertyS =
+            memberName.And(WSC)
+            .And(Skip(':')).And(WSC)
+            .And(Rec(() => Json5ValueS))
+            .Map((k, v) => '"' + k + '"' + ':' + v)
+            .Lbl("property");
+
+        var propertiesS = Many(propertyS, sep: Skip(',').AndR(WSC), canEndWithSep: true);
+
+        Json5ObjectS =
+            Between(Skip('{').AndR(WSC), propertiesS, Skip('}'))
+            .Map(props => '{' + string.Join(',', props) + '}')
+            .Lbl("object");
     }
 }
