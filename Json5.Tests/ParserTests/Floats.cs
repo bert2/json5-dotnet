@@ -55,7 +55,7 @@ public class Floats {
                 Error in Ln: 1 Col: 1
                 e
                 ^
-                Expecting: bool, null, number or string
+                Expecting: array, bool, null, number, object or string
                 """);
 
         [Fact]

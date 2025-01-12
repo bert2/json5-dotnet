@@ -19,9 +19,12 @@ using static StringParser;
 
 using Chars = FParsec.CharStream<Unit>;
 using JsonNodeP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<JsonNode?>>;
+using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 
 public static class ObjectParser {
     public static JsonNodeP Json5Object { get; set; }
+
+    public static StringP Json5ObjectS { get; set; } = Fail<string>("nope").Lbl("object");
 
     static ObjectParser() {
         var escapeSequence = Skip("\\u").And(HexEncodedUnicode).Lbl_("unicode escape sequence");

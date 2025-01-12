@@ -57,6 +57,8 @@ public static class CommonParsers {
 
     public static StringP Json5ValueS { get; set; } =
         Choice(
+            Json5ArrayS,
+            Json5ObjectS,
             Json5NullS,
             Json5BoolS,
             Json5StringS,
