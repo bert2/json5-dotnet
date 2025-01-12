@@ -28,5 +28,11 @@ public static class ArrayParser {
             Between(Skip('[').AndR(WSC), items, Skip(']'))
             .Map(xs => (JsonNode?)new JsonArray([.. xs]))
             .Lbl("array");
+
+        var itemsS = Many(Rec(() => Json5ValueS), sep: Skip(',').AndR(WSC), canEndWithSep: true);
+        Json5ArrayS =
+            Between(Skip('[').AndR(WSC), itemsS, Skip(']'))
+            .Map(xs => '[' + string.Join(',', xs) + ']')
+            .Lbl("array");
     }
 }

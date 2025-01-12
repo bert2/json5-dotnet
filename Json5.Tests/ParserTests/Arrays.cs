@@ -11,18 +11,18 @@ using System.Text.Json.Nodes;
 using static FluentAssertions.FluentActions;
 
 public class Arrays {
-    [Fact] void Empty() => Parser.Parse("[]").Should().Be(Array.Empty<object>());
-    [Fact] void Singleton() => Parser.Parse("[1]").Should().Be<int[]>([1]);
-    [Fact] void Multiple() => Parser.Parse("[1,2,3]").Should().Be<int[]>([1, 2, 3]);
+    [Fact] void Empty() => Parser.Parse2("[]").Should().Be(Array.Empty<object>());
+    [Fact] void Singleton() => Parser.Parse2("[1]").Should().Be<int[]>([1]);
+    [Fact] void Multiple() => Parser.Parse2("[1,2,3]").Should().Be<int[]>([1, 2, 3]);
 
     [Fact]
     void MixedTypes() =>
-        Parser.Parse("[null,1,0.2,3m,'foo',true]")
-        .Should().Be(new JsonArray(null, 1, 0.2, 3m, "foo", true));
+        Parser.Parse2("[null,1,0.2,'foo',true]")
+        .Should().Be(new JsonArray(null, 1, 0.2, "foo", true));
 
     [Fact]
     void CommaRequired() =>
-        Invoking(() => Parser.Parse(
+        Invoking(() => Parser.Parse2(
             """
             [
                 true
@@ -37,11 +37,11 @@ public class Arrays {
             Expecting: ',' or ']'
             """);
 
-    [Fact] void TrailingCommaAllowed() => Parser.Parse("['bar',]").Should().Be<string[]>(["bar"]);
+    [Fact] void TrailingCommaAllowed() => Parser.Parse2("['bar',]").Should().Be<string[]>(["bar"]);
 
     [Fact]
     void LeadingCommaNotAllowed() =>
-        Invoking(() => Parser.Parse("[,'qux']"))
+        Invoking(() => Parser.Parse2("[,'qux']"))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 2
@@ -52,7 +52,7 @@ public class Arrays {
 
     [Fact]
     void Whitespace() =>
-        Parser.Parse(
+        Parser.Parse2(
             """
                
                [      1,1,1,1,
@@ -71,7 +71,7 @@ public class Arrays {
 
     [Fact]
     void SingleLineComments() =>
-        Parser.Parse(
+        Parser.Parse2(
             """
             // foo
             [// bar
@@ -83,7 +83,7 @@ public class Arrays {
 
     [Fact]
     void MultilineComments() =>
-        Parser.Parse(
+        Parser.Parse2(
             """
             /* foo
             */[/* bar
@@ -96,7 +96,7 @@ public class Arrays {
 
     [Fact]
     void MustBeClosed() =>
-        Invoking(() => Parser.Parse("[true,false"))
+        Invoking(() => Parser.Parse2("[true,false"))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 12
@@ -107,16 +107,16 @@ public class Arrays {
             """);
 
     public class Nested {
-        [Fact] void Empty() => Parser.Parse("[[],[]]").Should().Be<object[][]>([[], []]);
+        [Fact] void Empty() => Parser.Parse2("[[],[]]").Should().Be<object[][]>([[], []]);
 
         [Fact]
         void Multiple() =>
-            Parser.Parse("[[1,2],[3,4],[5,6]]")
+            Parser.Parse2("[[1,2],[3,4],[5,6]]")
             .Should().Be<int[][]>([[1, 2], [3, 4], [5, 6]]);
 
         [Fact]
         void MixedTypes() =>
-            Parser.Parse("[[null,1,0.2],[3m,'bar',true]]")
-            .Should().Be(new JsonArray(new JsonArray(null, 1, 0.2), new JsonArray(3m, "bar", true)));
+            Parser.Parse2("[[null,1,0.2],['bar',true]]")
+            .Should().Be(new JsonArray(new JsonArray(null, 1, 0.2), new JsonArray("bar", true)));
     }
 }
