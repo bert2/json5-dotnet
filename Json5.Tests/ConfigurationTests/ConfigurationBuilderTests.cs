@@ -23,7 +23,7 @@ public partial class ConfigurationBuilderTests {
                 {
                   a: null,
                   b: 'test',
-                  c: [ +Infinity, -∞, Inf, NaN ],
+                  c: [ +Infinity, -Inf, NaN ],
                   d: [
                     { a: true, b: .1 },
                     { a: false, b: 1.e-3 }
@@ -39,7 +39,7 @@ public partial class ConfigurationBuilderTests {
         cfg.Should().NotBeNull();
         cfg!.A.Should().BeNull();
         cfg!.B.Should().Be("test");
-        cfg!.C.Should().Equal(double.PositiveInfinity, double.NegativeInfinity, double.PositiveInfinity, double.NaN);
+        cfg!.C.Should().Equal(double.PositiveInfinity, double.NegativeInfinity, double.NaN);
         cfg!.D.Should().SatisfyRespectively(
             d1 => { d1.A.Should().BeTrue(); d1.B.Should().Be(0.1f); },
             d2 => { d2.A.Should().BeFalse(); d2.B.Should().Be(1.0e-3f); });

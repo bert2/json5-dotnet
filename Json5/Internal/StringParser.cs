@@ -2,13 +2,9 @@
 
 using Microsoft.FSharp.Core;
 
-using System.Text.Json.Nodes;
-
 namespace Json5.Internal;
 
 using FParsec.CSharp;
-
-using Microsoft.Extensions.Primitives;
 
 using System.Text;
 
@@ -16,15 +12,10 @@ using static CommonParsers;
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
 
-using JsonNodeP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<JsonNode?>>;
 using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 
 public static class StringParser {
-    public static JsonNodeP Json5String { get; set; }
-
-    public static StringP Json5StringS { get; set; }
-
-    public static StringP RawString { get; set; }
+    public static StringP Json5String { get; set; }
 
     static StringParser() {
         var escapableChar = NoneOf("123456789");
@@ -47,15 +38,6 @@ public static class StringParser {
             })
             .Lbl_("escape sequence");
 
-        StringP StringContent(char quote) =>
-            ManyStrings(
-                ManyChars(NoneOf($"{quote}\\{BreakingWhitespaceChars}").Lbl("string character")),
-                sep: escapeSequence)
-            .And(Skip(quote));
-
-        RawString = AnyOf("'\"").And(StringContent).Lbl("string");
-        Json5String = RawString.Map(s => (JsonNode?)s);
-
         string Escape(string s) => s
             .Aggregate(new StringBuilder(), (sb, c) => c switch {
                 '"' => sb.Append(@"\"""),
@@ -65,13 +47,13 @@ public static class StringParser {
             })
             .ToString();
 
-        StringP StringContentS(char quote) =>
+        StringP StringContentAndQuote(char quote) =>
             ManyStrings(
                 ManyChars(NoneOf($"{quote}\\{BreakingWhitespaceChars}").Lbl("string character")),
                 sep: escapeSequence)
             .And(Skip(quote))
             .Map(s => '"' + Escape(s) + '"');
 
-        Json5StringS = AnyOf("'\"").And(StringContentS).Lbl("string");
+        Json5String = AnyOf("'\"").And(StringContentAndQuote).Lbl("string");
     }
 }

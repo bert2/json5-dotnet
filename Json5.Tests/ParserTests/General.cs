@@ -13,7 +13,7 @@ using static FluentAssertions.FluentActions;
 public class General {
     [Fact]
     void Example() =>
-        Parser.Parse2(
+        Parser.Parse(
             """
             {    
                 foo: 'bar',
@@ -56,7 +56,7 @@ public class General {
 
     [Fact]
     void GeneralError() =>
-        Invoking(() => Parser.Parse2("foo"))
+        Invoking(() => Parser.Parse("foo"))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 1
@@ -67,7 +67,7 @@ public class General {
 
     [Fact]
     void Empty() =>
-        Invoking(() => Parser.Parse2(""))
+        Invoking(() => Parser.Parse(""))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 1

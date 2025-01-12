@@ -11,25 +11,25 @@ using System.Text;
 using static FluentAssertions.FluentActions;
 
 public class Strings {
-    [Fact] void DoubleQuoted() => Parser.Parse2("\"strings are 'fun'\"").Should().Be("strings are 'fun'");
-    [Fact] void SingleQuoted() => Parser.Parse2("'strings are \"fun\"'").Should().Be("strings are \"fun\"");
+    [Fact] void DoubleQuoted() => Parser.Parse("\"strings are 'fun'\"").Should().Be("strings are 'fun'");
+    [Fact] void SingleQuoted() => Parser.Parse("'strings are \"fun\"'").Should().Be("strings are \"fun\"");
 
     public static class Escaping {
         public class SingleCharacters {
-            [Fact] void SingleQuote() => Parser.Parse2(@"'let\'s go'").Should().Be("let's go");
-            [Fact] void DoubleQuote() => Parser.Parse2("\"...\\\"go\\\" where?\"").Should().Be("...\"go\" where?");
-            [Fact] void Backslash() => Parser.Parse2(@"'escape with \\'").Should().Be(@"escape with \");
-            [Fact] void Backspace() => Parser.Parse2(@"'go back with \b'").Should().Be("go back with \b");
-            [Fact] void FormFeed() => Parser.Parse2(@"'next page with \f'").Should().Be("next page with \f");
-            [Fact] void Newline() => Parser.Parse2(@"'break\nme'").Should().Be("break\nme");
-            [Fact] void CarriageReturn() => Parser.Parse2(@"'yea \r whatever'").Should().Be("yea \r whatever");
-            [Fact] void Tab() => Parser.Parse2(@"'space\tcreated'").Should().Be("space\tcreated");
-            [Fact] void VerticalTab() => Parser.Parse2(@"'space\vcreated'").Should().Be("space\vcreated");
-            [Fact] void NullChar() => Parser.Parse2(@"'terminate me\0'").Should().Be("terminate me\0");
+            [Fact] void SingleQuote() => Parser.Parse(@"'let\'s go'").Should().Be("let's go");
+            [Fact] void DoubleQuote() => Parser.Parse("\"...\\\"go\\\" where?\"").Should().Be("...\"go\" where?");
+            [Fact] void Backslash() => Parser.Parse(@"'escape with \\'").Should().Be(@"escape with \");
+            [Fact] void Backspace() => Parser.Parse(@"'go back with \b'").Should().Be("go back with \b");
+            [Fact] void FormFeed() => Parser.Parse(@"'next page with \f'").Should().Be("next page with \f");
+            [Fact] void Newline() => Parser.Parse(@"'break\nme'").Should().Be("break\nme");
+            [Fact] void CarriageReturn() => Parser.Parse(@"'yea \r whatever'").Should().Be("yea \r whatever");
+            [Fact] void Tab() => Parser.Parse(@"'space\tcreated'").Should().Be("space\tcreated");
+            [Fact] void VerticalTab() => Parser.Parse(@"'space\vcreated'").Should().Be("space\vcreated");
+            [Fact] void NullChar() => Parser.Parse(@"'terminate me\0'").Should().Be("terminate me\0");
 
             [Fact]
             void DigitsAreNotAllowed() => "123456789".ForEach(c =>
-                Invoking(() => Parser.Parse2($@"'\{c}'"))
+                Invoking(() => Parser.Parse($@"'\{c}'"))
                 .Should().Throw<Exception>().WithMessage(
                     $"""
                     Error in Ln: 1 Col: 2
@@ -50,26 +50,26 @@ public class Strings {
                 .Select(Convert.ToChar)
                 .Except("'xubfnrtv0123456789\n\r\u0085")
                 .ForEach(c =>
-                    Parser.Parse2($@"'\{c}'")
+                    Parser.Parse($@"'\{c}'")
                     .Should().Be(c.ToString(), because: $"Char {c} (\\u{(int)c:X4}) should be mapped to itself"));
         }
 
         public class HexSequences {
-            [Fact] void Example() => Parser.Parse2(@"'\xFF'").Should().Be("ÿ");
+            [Fact] void Example() => Parser.Parse(@"'\xFF'").Should().Be("ÿ");
 
             [Fact]
             void HexNumberIsConvertedToChar() => Enumerable
                 .Range(0, 256)
                 .Select(x => (Char: (char)x, Hex: x.ToString("x2")))
                 .ForEach(x =>
-                    Parser.Parse2($@"'\x{x.Hex}'")
+                    Parser.Parse($@"'\x{x.Hex}'")
                     .Should().Be(x.Char.ToString(), because: $@"escape sequence \x{x.Hex} should be mapped to {x.Char}"));
         }
 
         public class UnicodeSequences {
-            [Fact] void Example() => Parser.Parse2(@"'\uACDC'").Should().Be("곜");
+            [Fact] void Example() => Parser.Parse(@"'\uACDC'").Should().Be("곜");
 
-            [Fact] void SurrogatePairExample() => Parser.Parse2(@"'\uD83C\uDFBC'").Should().Be("\U0001F3BC");
+            [Fact] void SurrogatePairExample() => Parser.Parse(@"'\uD83C\uDFBC'").Should().Be("\U0001F3BC");
 
             [Fact]
             void HexNumberThatIsNotUnicodeSurrogateIsConvertedToChar() => Enumerable
@@ -77,7 +77,7 @@ public class Strings {
                 .Where(x => !char.IsSurrogate((char)x))
                 .Select(x => (Char: new string((char)x, 1), Hex: x.ToString("x4")))
                 .ForEach(x =>
-                    Parser.Parse2($@"'\u{x.Hex}'")
+                    Parser.Parse($@"'\u{x.Hex}'")
                     .Should().Be(x.Char, because: $@"escape sequence \u{x.Hex} should be mapped to {x.Char}"));
 
             [Fact]
@@ -86,22 +86,22 @@ public class Strings {
                 .Where(x => char.IsSurrogate((char)x))
                 .Select(x => x.ToString("x4"))
                 .ForEach(x =>
-                    Invoking(() => Parser.Parse2($@"'\u{x}'"))
+                    Invoking(() => Parser.Parse($@"'\u{x}'"))
                     .Should().Throw<ArgumentException>().WithMessage("Cannot transcode invalid UTF-16 string to UTF-8 JSON text.")
                         .WithInnerException<EncoderFallbackException>().WithMessage($@"Unable to translate Unicode character \\u{x} at index 1 to specified code page."));
 
             public class ExplicitCodepoints {
-                [Fact] void Example() => Parser.Parse2(@"'\u{000061}'").Should().Be("a");
+                [Fact] void Example() => Parser.Parse(@"'\u{000061}'").Should().Be("a");
 
-                [Fact] void VariableLength() => Parser.Parse2(@"'\u{62}'").Should().Be("b");
+                [Fact] void VariableLength() => Parser.Parse(@"'\u{62}'").Should().Be("b");
 
-                [Fact] void PrependedZerosAreIgnored() => Parser.Parse2(@"'\u{00000000000000000000063}'").Should().Be("c");
+                [Fact] void PrependedZerosAreIgnored() => Parser.Parse(@"'\u{00000000000000000000063}'").Should().Be("c");
 
-                [Fact] void MaxSize() => Parser.Parse2(@"'\u{10FFFF}'").Should().Be("\U0010ffff");
+                [Fact] void MaxSize() => Parser.Parse(@"'\u{10FFFF}'").Should().Be("\U0010ffff");
 
                 [Fact]
                 void MaxSizePlus1() =>
-                    Invoking(() => Parser.Parse2(@"'\u{110000}'"))
+                    Invoking(() => Parser.Parse(@"'\u{110000}'"))
                     .Should().Throw<Exception>().WithMessage(
                         """
                         Error in Ln: 1 Col: 2
@@ -118,7 +118,7 @@ public class Strings {
 
                 [Fact]
                 void Empty() =>
-                    Invoking(() => Parser.Parse2(@"'\u{}'"))
+                    Invoking(() => Parser.Parse(@"'\u{}'"))
                     .Should().Throw<Exception>().WithMessage(
                         """
                         Error in Ln: 1 Col: 2
@@ -135,7 +135,7 @@ public class Strings {
 
                 [Fact]
                 void UnclodesBraces() =>
-                    Invoking(() => Parser.Parse2(@"'\u{64'"))
+                    Invoking(() => Parser.Parse(@"'\u{64'"))
                     .Should().Throw<Exception>().WithMessage(
                         """
                         Error in Ln: 1 Col: 2
@@ -155,7 +155,7 @@ public class Strings {
         public class LineContinuations {
             [Fact]
             void NoUnescapedLineTerminator() =>
-                Invoking(() => Parser.Parse2("\"let's have a break, \nshall we\""))
+                Invoking(() => Parser.Parse("\"let's have a break, \nshall we\""))
                 .Should().Throw<Exception>().WithMessage(
                     """
                     Error in Ln: 1 Col: 22
@@ -167,7 +167,7 @@ public class Strings {
 
             [Fact]
             void EscapedNewlinesAreIgnored() =>
-                Parser.Parse2(
+                Parser.Parse(
                     """
                     "Look mom, I'm on \
                     multiple \
@@ -177,7 +177,7 @@ public class Strings {
 
             [Fact]
             void IgnoresIndentation() =>
-                Parser.Parse2(
+                Parser.Parse(
                     """
                         "Look mom, I'm on \
                          multiple \
@@ -188,7 +188,7 @@ public class Strings {
 
             [Fact]
             void IndentationDepthDoesNotMatter() =>
-                Parser.Parse2(
+                Parser.Parse(
                     """
                         "Look mom, I'm on \
                          multiple \
@@ -199,7 +199,7 @@ public class Strings {
 
             [Fact]
             void DoesNotSkipUnescapedNewlineWhenSkippingIndentation() =>
-                Invoking(() => Parser.Parse2(
+                Invoking(() => Parser.Parse(
                     """
                     "The next line \
                     
@@ -213,12 +213,12 @@ public class Strings {
                     Expecting: escape sequence, string character or '"'
                     """");
 
-            [Fact] void AcceptsEscapedLf() => Parser.Parse2("'break \\\nhere'").Should().Be("break here");
-            [Fact] void AcceptsEscapedCr() => Parser.Parse2("'break \\\rhere'").Should().Be("break here");
-            [Fact] void AcceptsEscapedCrLf() => Parser.Parse2("'break \\\r\nhere'").Should().Be("break here");
-            [Fact] void AcceptsEscapedNextLineCharacter() => Parser.Parse2("'break \\\u0085here'").Should().Be("break here");
-            [Fact] void AcceptsEscapedLineSeparator() => Parser.Parse2("'break \\\u2028here'").Should().Be("break here");
-            [Fact] void AcceptsEscapedParagraphSeparator() => Parser.Parse2("'break \\\u2029here'").Should().Be("break here");
+            [Fact] void AcceptsEscapedLf() => Parser.Parse("'break \\\nhere'").Should().Be("break here");
+            [Fact] void AcceptsEscapedCr() => Parser.Parse("'break \\\rhere'").Should().Be("break here");
+            [Fact] void AcceptsEscapedCrLf() => Parser.Parse("'break \\\r\nhere'").Should().Be("break here");
+            [Fact] void AcceptsEscapedNextLineCharacter() => Parser.Parse("'break \\\u0085here'").Should().Be("break here");
+            [Fact] void AcceptsEscapedLineSeparator() => Parser.Parse("'break \\\u2028here'").Should().Be("break here");
+            [Fact] void AcceptsEscapedParagraphSeparator() => Parser.Parse("'break \\\u2029here'").Should().Be("break here");
         }
     }
 }

@@ -7,6 +7,6 @@ using FluentAssertions;
 using Helpers;
 
 public class Booleans {
-    [Fact] void True() => Parser.Parse2("true").Should().Be(true);
-    [Fact] void False() => Parser.Parse2("false").Should().Be(false);
+    [Fact] void True() => Parser.Parse("true").Should().Be(true);
+    [Fact] void False() => Parser.Parse("false").Should().Be(false);
 }

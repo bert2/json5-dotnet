@@ -9,9 +9,9 @@ using Helpers;
 using System.Text.Json.Nodes;
 
 public class NpmPackageJson {
-    [Fact] void Json5MatchesEquivalentJsonReference() => Parser.Parse2(PackageJson5).Should().Be(JsonNode.Parse(PackageJson));
+    [Fact] void Json5MatchesEquivalentJsonReference() => Parser.Parse(PackageJson5).Should().Be(JsonNode.Parse(PackageJson));
 
-    [Fact] void JsonMatchesJsonReference() => Parser.Parse2(PackageJson).Should().Be(JsonNode.Parse(PackageJson));
+    [Fact] void JsonMatchesJsonReference() => Parser.Parse(PackageJson).Should().Be(JsonNode.Parse(PackageJson));
 
     private const string PackageJson5 =
         """

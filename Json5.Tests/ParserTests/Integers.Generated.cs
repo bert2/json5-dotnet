@@ -56,7 +56,7 @@ public static partial class Integers {
         }
     }
 
-    private static T Deserialize<T>(string s) => Parser.Parse2(s)!.Deserialize<T>();
+    private static T Deserialize<T>(string s) => Parser.Parse(s)!.Deserialize<T>();
 
     // generates uint values greater than int.MaxValue
     private static readonly Arbitrary<uint> @uint = ArbMap.Default.ArbFor<uint>()

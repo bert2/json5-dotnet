@@ -21,11 +21,10 @@ public class Json5ConfigFileParserTests {
               d: 'test',
               e: 123,
               f: +Infinity,
-              g: -∞,
-              h: Inf,
-              i: NaN,
-              j: 0xBEEF,
-              k: 0b101
+              g: -Inf,
+              h: NaN,
+              i: 0xBEEF,
+              j: 0b101
             }
             """))
         .Should().Equal(
@@ -36,10 +35,9 @@ public class Json5ConfigFileParserTests {
             P("e", "123"),
             P("f", "Infinity"),
             P("g", "-Infinity"),
-            P("h", "Infinity"),
-            P("i", "NaN"),
-            P("j", "48879"),
-            P("k", "5"));
+            P("h", "NaN"),
+            P("i", "48879"),
+            P("j", "5"));
 
     [Fact] void NestedObjects() => Parse(S("{ a: { b: { c: 'test' } } }")).Should().Equal([P("a:b:c", "test")]);
 

@@ -2,8 +2,6 @@
 
 using Microsoft.FSharp.Core;
 
-using System.Text.Json.Nodes;
-
 namespace Json5.Internal;
 
 using FParsec.CSharp;
@@ -19,7 +17,6 @@ using static PrimitiveParsers;
 using static StringParser;
 using static System.Buffers.Binary.BinaryPrimitives;
 
-using JsonNodeP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<JsonNode?>>;
 using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 using UnitP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<Unit>>;
 
@@ -45,7 +42,7 @@ public static class CommonParsers {
             Between('{', Many1Chars(Hex), '}').And(ParseUtf32),
             Array(4, Hex).Map(ConvertUtf16));
 
-    public static JsonNodeP Json5Value { get; set; } =
+    public static StringP Json5Value { get; set; } =
         Choice(
             Json5Array,
             Json5Object,
@@ -53,16 +50,6 @@ public static class CommonParsers {
             Json5Bool,
             Json5String,
             Json5Number)
-        .And(WSC);
-
-    public static StringP Json5ValueS { get; set; } =
-        Choice(
-            Json5ArrayS,
-            Json5ObjectS,
-            Json5NullS,
-            Json5BoolS,
-            Json5StringS,
-            Json5NumberS)
         .And(WSC);
 
     public static string ConvertUtf8(char[] twoHexDigits)

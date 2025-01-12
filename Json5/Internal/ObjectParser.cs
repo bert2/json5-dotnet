@@ -2,8 +2,6 @@
 
 using Microsoft.FSharp.Core;
 
-using System.Text.Json.Nodes;
-
 namespace Json5.Internal;
 
 using FParsec;
@@ -18,13 +16,10 @@ using static FParsec.IdentifierValidator;
 using static StringParser;
 
 using Chars = FParsec.CharStream<Unit>;
-using JsonNodeP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<JsonNode?>>;
 using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 
 public static class ObjectParser {
-    public static JsonNodeP Json5Object { get; set; }
-
-    public static StringP Json5ObjectS { get; set; } = Fail<string>("nope").Lbl("object");
+    public static StringP Json5Object { get; set; } = Fail<string>("nope").Lbl("object");
 
     static ObjectParser() {
         var escapeSequence = Skip("\\u").And(HexEncodedUnicode).Lbl_("unicode escape sequence");
@@ -76,33 +71,19 @@ public static class ObjectParser {
             return new Reply<string>(pass2.Status, err);
         }).Lbl("identifier");
 
-        var memberName = Choice(RawString, identifier);
+        var memberName = Choice(Json5String, identifier.Map(id => '"' + id + '"'));
 
         var property =
             memberName.And(WSC)
             .And(Skip(':')).And(WSC)
             .And(Rec(() => Json5Value))
-            .Map(KeyValuePair.Create)
+            .Map((k, v) => k + ':' + v)
             .Lbl("property");
 
         var properties = Many(property, sep: Skip(',').AndR(WSC), canEndWithSep: true);
 
         Json5Object =
             Between(Skip('{').AndR(WSC), properties, Skip('}'))
-            .Map(props => (JsonNode?)new JsonObject(props))
-            .Lbl("object");
-
-        var propertyS =
-            memberName.And(WSC)
-            .And(Skip(':')).And(WSC)
-            .And(Rec(() => Json5ValueS))
-            .Map((k, v) => '"' + k + '"' + ':' + v)
-            .Lbl("property");
-
-        var propertiesS = Many(propertyS, sep: Skip(',').AndR(WSC), canEndWithSep: true);
-
-        Json5ObjectS =
-            Between(Skip('{').AndR(WSC), propertiesS, Skip('}'))
             .Map(props => '{' + string.Join(',', props) + '}')
             .Lbl("object");
     }

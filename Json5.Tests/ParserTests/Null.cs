@@ -7,5 +7,5 @@ using FluentAssertions;
 using Helpers;
 
 public class Null {
-    [Fact] void Test() => Parser.Parse2("null").Should().BeNull();
+    [Fact] void Test() => Parser.Parse("null").Should().BeNull();
 }
