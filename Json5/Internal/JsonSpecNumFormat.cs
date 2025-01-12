@@ -4,7 +4,7 @@ using static FParsec.CharParsers;
 using static FParsec.CharParsers.NumberLiteralResultFlags;
 using static MoreLinq.Extensions.WindowLeftExtension;
 
-// Transforms a parsed number literal so it obeys the JSON spec (https://www.json.org/img/number.png).
+// Transforms a parsed number literal such that it obeys the JSON spec (https://www.json.org/img/number.png).
 public static class JsonSpecNumFormat {
     public static NumberLiteral Normalize(this NumberLiteral nl) => nl
         .TrimLeadingPlus()
@@ -63,7 +63,7 @@ public static class JsonSpecNumFormat {
             nl.SuffixChar3,
             nl.SuffixChar4);
 
-    private static IEnumerable<T> PrependIfNotNull<T>(this IEnumerable<T> source, T? item)
+    public static IEnumerable<T> PrependIfNotNull<T>(this IEnumerable<T> source, T? item)
         where T : struct
         => item == null ? source : source.Prepend(item.Value);
 }

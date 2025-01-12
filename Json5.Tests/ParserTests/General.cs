@@ -56,7 +56,7 @@ public class General {
 
     [Fact]
     void GeneralError() =>
-        Invoking(() => Parser.Parse("foo"))
+        Invoking(() => Parser.Parse2("foo"))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 1
@@ -67,7 +67,7 @@ public class General {
 
     [Fact]
     void Empty() =>
-        Invoking(() => Parser.Parse(""))
+        Invoking(() => Parser.Parse2(""))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 1
