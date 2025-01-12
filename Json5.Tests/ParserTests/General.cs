@@ -13,7 +13,7 @@ using static FluentAssertions.FluentActions;
 public class General {
     [Fact]
     void Example() =>
-        Parser.Parse(
+        Parser.Parse2(
             """
             {    
                 foo: 'bar',
