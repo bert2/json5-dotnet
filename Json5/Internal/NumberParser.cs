@@ -10,16 +10,18 @@ using FParsec.CSharp;
 
 using System.Globalization;
 using System.Numerics;
-using System.Text.Json.Nodes;
 
 using static FParsec.CharParsers;
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
 
 using JsonNodeP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<JsonNode?>>;
+using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 
 public static class NumberParser {
     public static JsonNodeP Json5Number { get; set; }
+
+    public static StringP Json5NumberS { get; set; } = NumberLiteral(numLiteralOptsS, label: "number").Map(ParseNumLiteralS);
 
     public const NumberLiteralOptions numLiteralOpts =
         NumberLiteralOptions.AllowBinary
@@ -33,6 +35,17 @@ public static class NumberParser {
         | NumberLiteralOptions.AllowNaN
         | NumberLiteralOptions.AllowSuffix
         | NumberLiteralOptions.IncludeSuffixCharsInString;
+
+    public const NumberLiteralOptions numLiteralOptsS =
+        NumberLiteralOptions.AllowBinary
+        | NumberLiteralOptions.AllowHexadecimal
+        | NumberLiteralOptions.AllowMinusSign
+        | NumberLiteralOptions.AllowPlusSign
+        | NumberLiteralOptions.AllowFraction
+        | NumberLiteralOptions.AllowFractionWOIntegerPart
+        | NumberLiteralOptions.AllowExponent
+        | NumberLiteralOptions.AllowInfinity
+        | NumberLiteralOptions.AllowNaN;
 
     public static readonly CultureInfo invCult = CultureInfo.InvariantCulture;
 
@@ -59,6 +72,17 @@ public static class NumberParser {
         { IsDecimal: true } => ParseIntDec(nl),
         { IsHexadecimal: true } => ParseIntHex(nl),
         { IsBinary: true } => ParseIntBin(nl),
+        _ => throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.")
+    };
+
+    public static string ParseNumLiteralS(NumberLiteral nl) => nl switch {
+        { IsInfinity: true, HasMinusSign: true } => '"' + double.NegativeInfinity.ToString(invCult) + '"',
+        { IsInfinity: true } => '"' + double.PositiveInfinity.ToString(invCult) + '"',
+        { IsNaN: true } => '"' + double.NaN.ToString(invCult) + '"',
+        { IsInteger: false } => nl.Normalize().String,
+        { IsDecimal: true } => nl.Normalize().String,
+        { IsHexadecimal: true } => ParseIntHexS(nl).ToString(invCult),
+        { IsBinary: true } => ParseIntBinS(nl).ToString(invCult),
         _ => throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.")
     };
 
@@ -104,6 +128,22 @@ public static class NumberParser {
             <= 32 => Parse16Bytes(s, sign, sty),
             _ => ParseVarBytes(s, sign, sty)
         };
+    }
+
+    public static string ParseIntHexS(NumberLiteral nl) {
+        var s = nl.HasMinusSign || nl.HasPlusSign ? nl.String[3..] : nl.String[2..];
+        var sign = nl.HasMinusSign ? -1 : 1;
+        // Prepend 0 so the most significant bit is never set and the result will always be positive.
+        var val = BigInteger.Parse('0' + s, NumberStyles.AllowHexSpecifier, invCult) * sign;
+        return val.ToString(invCult);
+    }
+
+    public static string ParseIntBinS(NumberLiteral nl) {
+        var s = nl.HasMinusSign || nl.HasPlusSign ? nl.String[3..] : nl.String[2..];
+        var sign = nl.HasMinusSign ? -1 : 1;
+        // Prepend 0 so the most significant bit is never set and the result will always be positive.
+        var val = BigInteger.Parse('0' + s, NumberStyles.AllowBinarySpecifier, invCult) * sign;
+        return val.ToString(invCult);
     }
 
     public static JsonNode ParseIntBin(NumberLiteral nl) {

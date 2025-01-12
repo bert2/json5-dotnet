@@ -12,7 +12,9 @@ using static CommonParsers;
 using static FParsec.CSharp.CharParsersCS;
 
 using JsonNodeP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<JsonNode?>>;
+using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 
 public static class Json5Parser {
     public static JsonNodeP Json5 { get; set; } = WSC.And(Json5Value).And(EOF);
+    public static StringP Json5S { get; set; } = WSC.And(Json5ValueS).And(EOF);
 }

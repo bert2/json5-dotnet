@@ -55,6 +55,14 @@ public static class CommonParsers {
             Json5Number)
         .And(WSC);
 
+    public static StringP Json5ValueS { get; set; } =
+        Choice(
+            Json5NullS,
+            Json5BoolS,
+            Json5StringS,
+            Json5NumberS)
+        .And(WSC);
+
     public static string ConvertUtf8(char[] twoHexDigits)
         => new((char)Convert.FromHexString(twoHexDigits)[0], 1);
 

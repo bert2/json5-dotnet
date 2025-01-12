@@ -31,18 +31,6 @@ public record JsonNodeAssertions(JsonNode Subject) {
         return new AndConstraint<JsonNodeAssertions>(this);
     }
 
-    public AndConstraint<JsonNodeAssertions> BeNaN(string because = "", params object[] becauseArgs) {
-        Execute.Assertion
-            .ForCondition(double.IsNaN(Subject.GetValue<double>()))
-            .BecauseOf(because, becauseArgs)
-            .WithDefaultIdentifier(identifier)
-            .FailWith(
-                "Expected {context} to be double.NaN{reason}, but found {0}.",
-                Subject?.ToJsonString(opts));
-
-        return new AndConstraint<JsonNodeAssertions>(this);
-    }
-
     public AndConstraint<JsonNodeAssertions> BeEmptyObject() {
         Subject.Should().HaveValueKind(JsonValueKind.Object);
         var props = Subject.AsObject().Count;
