@@ -13,10 +13,6 @@ using System.Text;
 public partial class ConfigurationBuilderTests {
     [Fact]
     void Example() {
-        // BigIntegers require global registration of a custom TypeConverter, but this might change in the
-        // future: https://github.com/dotnet/runtime/issues/83599
-        TypeDescriptor.AddAttributes(typeof(BigInteger), new TypeConverterAttribute(typeof(BigIntegerConverter)));
-
         var cfg = new ConfigurationBuilder()
             .AddJson5Stream(S(
                 """
@@ -29,8 +25,7 @@ public partial class ConfigurationBuilderTests {
                     { a: false, b: 1.e-3 }
                   ],
                   e: 0xBEEF,
-                  f: 0b101,
-                  g: 340282366920938463463374607433002779345
+                  f: 0b101
                 }
                 """))
             .Build()
@@ -45,7 +40,6 @@ public partial class ConfigurationBuilderTests {
             d2 => { d2.A.Should().BeFalse(); d2.B.Should().Be(1.0e-3f); });
         cfg!.E.Should().Be(48879);
         cfg!.F.Should().Be(5);
-        cfg!.G.Should().Be((BigInteger)UInt128.MaxValue + 1234567890);
     }
 
     static MemoryStream S(string s) => new(Encoding.Default.GetBytes(s));

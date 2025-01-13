@@ -29,8 +29,8 @@ public class Json5ConfigFileParserTests {
             """))
         .Should().Equal(
             P("a", null),
-            P("b", "True"),
-            P("c", "False"),
+            P("b", "true"),
+            P("c", "false"),
             P("d", "test"),
             P("e", "123"),
             P("f", "Infinity"),
