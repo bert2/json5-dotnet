@@ -15,7 +15,5 @@ public class Json5StreamConfigProvider(Json5StreamConfigSource source) : StreamC
     /// Loads JSON5 configuration key-value pairs from a stream into a provider.
     /// </summary>
     /// <param name="stream">The JSON5 <see cref="Stream"/> to load configuration data from.</param>
-    public override void Load(Stream stream) {
-        Data = Json5ConfigFileParser.Parse(stream);
-    }
+    public override void Load(Stream stream) => Data = Json5ConfigFileParser.Parse(stream);
 }
