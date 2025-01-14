@@ -1,6 +1,4 @@
-﻿#pragma warning disable IDE0051 // Remove unused private members
-
-namespace Json5.Tests.ParserTests;
+﻿namespace Json5.Tests.ParserTests;
 
 using FluentAssertions;
 
@@ -19,7 +17,7 @@ public class General {
     };
 
     [Fact]
-    void Example() =>
+    public void Example() =>
         Parser.Parse(
             """
             {    
@@ -62,7 +60,7 @@ public class General {
         }, opts);
 
     [Fact]
-    void Invalid() =>
+    public void Invalid() =>
         Invoking(() => Parser.Parse("foo"))
         .Should().Throw<Exception>().WithMessage(
             """
@@ -73,7 +71,7 @@ public class General {
             """);
 
     [Fact]
-    void Empty() =>
+    public void Empty() =>
         Invoking(() => Parser.Parse(""))
         .Should().Throw<Exception>().WithMessage(
             """

@@ -14,5 +14,4 @@ public static class Parser {
     public static string Translate(string json5) => Json5.RunOnString(json5).GetResult();
 
     public static string Translate(Stream json5) => Json5.RunOnStream(json5).GetResult();
-
 }

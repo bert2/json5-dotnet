@@ -15,7 +15,7 @@ public static class Integers {
     // required to deserialize integers beyond Int128.MinValue and UInt128.MaxValue
     static readonly JsonSerializerOptions opts = new() { Converters = { new BigIntegerJsonConverter() } };
 
-    public partial class Bin {
+    public class Bin {
         [Fact] void LowerCaseFormatSpecifier() => Parser.Parse("0b010101").Should().Be(21);
         [Fact] void UpperCaseFormatSpecifier() => Parser.Parse("0B010101").Should().Be(21);
         [Fact] void Positive() => Parser.Parse("+0b1101010").Should().Be(106);
@@ -47,7 +47,7 @@ public static class Integers {
         [Fact] void NegativeBigInteger() => Parser.Parse("-0b10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001001001100101100000001011010010").Should().Be((BigInteger)Int128.MinValue - 1234567890, opts);
     }
 
-    public partial class Dec {
+    public class Dec {
         [Fact] void Positive() => Parser.Parse("+546").Should().Be(546);
         [Fact] void Negative() => Parser.Parse("-1656").Should().Be(-1656);
         [Fact] void LeadingZeros() => Parser.Parse("00123").Should().Be(123);
@@ -65,7 +65,7 @@ public static class Integers {
         [Fact] void NegativeBigInteger() => Parser.Parse("-170141183460469231731687303717118673618").Should().Be((BigInteger)Int128.MinValue - 1234567890, opts);
     }
 
-    public partial class Hex {
+    public class Hex {
         [Fact] void LowerCaseFormatSpecifier() => Parser.Parse("0xABCDEF").Should().Be(11259375);
         [Fact] void UpperCaseFormatSpecifier() => Parser.Parse("0XABCDEF").Should().Be(11259375);
         [Fact] void Positive() => Parser.Parse("+0x0023FF").Should().Be(9215);

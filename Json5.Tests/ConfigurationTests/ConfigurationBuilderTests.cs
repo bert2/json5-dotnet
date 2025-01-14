@@ -1,6 +1,4 @@
-﻿#pragma warning disable IDE0051 // Remove unused private members
-
-namespace Json5.Tests.ConfigurationTests;
+﻿namespace Json5.Tests.ConfigurationTests;
 
 using FluentAssertions;
 
@@ -9,9 +7,9 @@ using Microsoft.Extensions.Configuration;
 using System.Numerics;
 using System.Text;
 
-public partial class ConfigurationBuilderTests {
+public class ConfigurationBuilderTests {
     [Fact]
-    void Example() {
+    public void Example() {
         var cfg = new ConfigurationBuilder()
             .AddJson5Stream(S(
                 """
