@@ -9,27 +9,10 @@ using System.Text.Json.Serialization;
 
 public record JsonNodeAssertions(JsonNode Subject) {
     private const string identifier = nameof(JsonNode);
-    private static readonly JsonSerializerOptions opts = new() { NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals };
 
-    public AndConstraint<JsonNodeAssertions> BeNull(string because = "", params object[] becauseArgs) {
-        Execute.Assertion
-            .ForCondition(Subject is null)
-            .BecauseOf(because, becauseArgs)
-            .WithDefaultIdentifier(identifier)
-            .FailWith("Expected {context} at path {1} to be <null>{reason}, but found {0}.", Subject?.ToJsonString(opts), Subject?.GetPath());
-
-        return new AndConstraint<JsonNodeAssertions>(this);
-    }
-
-    public AndConstraint<JsonNodeAssertions> NotBeNull(string because = "", params object[] becauseArgs) {
-        Execute.Assertion
-            .ForCondition(Subject is not null)
-            .BecauseOf(because, becauseArgs)
-            .WithDefaultIdentifier(identifier)
-            .FailWith("Expected {context} not to be <null>{reason}.");
-
-        return new AndConstraint<JsonNodeAssertions>(this);
-    }
+    static readonly JsonSerializerOptions opts = new() {
+        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
+    };
 
     public AndConstraint<JsonNodeAssertions> BeEmptyObject() {
         Subject.Should().HaveValueKind(JsonValueKind.Object);
@@ -55,7 +38,11 @@ public record JsonNodeAssertions(JsonNode Subject) {
         return new(new JsonNodeAssertions(this));
     }
 
-    public AndConstraint<JsonNodeAssertions> Be<T>(T expected, string because = "", params object[] becauseArgs) {
+    public AndConstraint<JsonNodeAssertions> Be<T>(
+        T expected,
+        JsonSerializerOptions? opts = null,
+        string because = "",
+        params object[] becauseArgs) {
         var actual = Subject.Deserialize<T>(opts);
         actual.Should().BeEquivalentTo(
             expected,

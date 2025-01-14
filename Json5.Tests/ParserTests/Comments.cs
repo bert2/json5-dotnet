@@ -56,10 +56,10 @@ public static class Comments {
         void Trailing() =>
             Parser.Parse(
                 """
-                null /* this line
-                        has a null value */
+                13 /* this line
+                        has a number value */
                 """)
-            .Should().BeNull();
+            .Should().Be(13);
 
         [Fact]
         void JavaDocStyle() =>

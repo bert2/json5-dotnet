@@ -6,7 +6,6 @@ using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 
-using System.ComponentModel;
 using System.Numerics;
 using System.Text;
 

@@ -7,10 +7,17 @@ using FluentAssertions;
 using Helpers;
 
 using System;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 using static FluentAssertions.FluentActions;
 
 public class General {
+    // required to deserialize "Infinity" and "NaN"
+    static readonly JsonSerializerOptions opts = new() {
+        NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
+    };
+
     [Fact]
     void Example() =>
         Parser.Parse(
@@ -52,10 +59,10 @@ public class General {
             to = double.PositiveInfinity,
             @finally = "a trailing comma",
             oh = new[] { "we shouldn't forget", "arrays can have", "trailing commas too" }
-        });
+        }, opts);
 
     [Fact]
-    void GeneralError() =>
+    void Invalid() =>
         Invoking(() => Parser.Parse("foo"))
         .Should().Throw<Exception>().WithMessage(
             """

@@ -4,8 +4,6 @@ namespace Json5.Tests.ParserTests;
 
 using FluentAssertions;
 
-using Helpers;
-
 public class Null {
     [Fact] void Test() => Parser.Parse("null").Should().BeNull();
 }
