@@ -10,7 +10,6 @@ namespace Microsoft.Extensions.Configuration.Json5;
 /// </remarks>
 /// <param name="source">The <see cref="Json5StreamConfigSource"/>.</param>
 public class Json5StreamConfigProvider(Json5StreamConfigSource source) : StreamConfigurationProvider(source) {
-
     /// <summary>
     /// Loads JSON5 configuration key-value pairs from a stream into a provider.
     /// </summary>
