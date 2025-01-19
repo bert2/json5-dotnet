@@ -24,15 +24,13 @@ Console.WriteLine(
 
     {Json5.Parser.Parse(json5)}
 
-    """);
-
-// `JsonSerializerOptions.Web` makes property names case-insensitive and allows the
-// floating point literals "NaN" and "Infinity".
-Console.WriteLine(
-    $"""
     Deserialized as record:
 
-    {Json5.Parser.Parse(json5).Deserialize<Foo>(JsonSerializerOptions.Web)}
+    {
+        // `JsonSerializerOptions.Web` makes property names case-insensitive and allows
+        // floating point literals ("NaN", "Infinity").
+        Json5.Parser.Parse(json5).Deserialize<Foo>(JsonSerializerOptions.Web)
+    }
     """);
 
 public record Foo(string Description, double[] Nums) {

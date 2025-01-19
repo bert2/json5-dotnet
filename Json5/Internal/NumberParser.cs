@@ -24,7 +24,8 @@ public static class NumberParser {
     public const NumberLiteralOptions NumLiteralOpts =
         AllowBinary | AllowHexadecimal
         | AllowMinusSign | AllowPlusSign
-        | AllowFraction | AllowFractionWOIntegerPart | AllowExponent
+        | AllowFraction | AllowFractionWOIntegerPart
+        | AllowExponent
         | AllowInfinity | AllowNaN;
 
     public static CultureInfo Culture { get; set; } = CultureInfo.InvariantCulture;
@@ -33,26 +34,26 @@ public static class NumberParser {
         { IsInfinity: true, HasMinusSign: true } => '"' + double.NegativeInfinity.ToString(Culture) + '"',
         { IsInfinity: true } => '"' + double.PositiveInfinity.ToString(Culture) + '"',
         { IsNaN: true } => '"' + double.NaN.ToString(Culture) + '"',
-        { IsInteger: false } => nl.Normalize().String,
-        { IsDecimal: true } => nl.Normalize().String,
         { IsHexadecimal: true } => ParseHexNum(nl).ToString(Culture),
         { IsBinary: true } => ParseBinNum(nl).ToString(Culture),
-        _ => throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.")
+        _ => nl.Normalize().String,
     };
 
     public static string ParseHexNum(NumberLiteral nl) {
         var s = nl.HasMinusSign || nl.HasPlusSign ? nl.String[3..] : nl.String[2..];
         var sign = nl.HasMinusSign ? -1 : 1;
         // Prepend 0 so the most significant bit is never set and the result will always be positive.
-        var val = BigInteger.Parse('0' + s, NumberStyles.AllowHexSpecifier, Culture) * sign;
-        return val.ToString(Culture);
+        return BigInteger.TryParse('0' + s, NumberStyles.AllowHexSpecifier, Culture, out var val)
+            ? (sign * val).ToString(Culture)
+            : throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.");
     }
 
     public static string ParseBinNum(NumberLiteral nl) {
         var s = nl.HasMinusSign || nl.HasPlusSign ? nl.String[3..] : nl.String[2..];
         var sign = nl.HasMinusSign ? -1 : 1;
         // Prepend 0 so the most significant bit is never set and the result will always be positive.
-        var val = BigInteger.Parse('0' + s, NumberStyles.AllowBinarySpecifier, Culture) * sign;
-        return val.ToString(Culture);
+        return BigInteger.TryParse('0' + s, NumberStyles.AllowBinarySpecifier, Culture, out var val)
+            ? (sign * val).ToString(Culture)
+            : throw new NotSupportedException($"Format of the number literal {nl.String} is not supported.");
     }
 }

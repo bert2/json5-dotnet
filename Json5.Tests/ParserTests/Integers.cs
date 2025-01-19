@@ -85,6 +85,16 @@ public static class Integers {
                 Expecting: hexadecimal digit
                 """);
 
+        [Fact]
+        void FractionsNotSupported() =>
+            Invoking(() => Parser.Parse("0x0.ABC"))
+            .Should().Throw<Exception>().WithMessage("Format of the number literal 0x0.ABC is not supported.");
+
+        [Fact]
+        void ExponentsNotSupported() =>
+            Invoking(() => Parser.Parse("0x1p-3"))
+            .Should().Throw<Exception>().WithMessage("Format of the number literal 0x1p-3 is not supported.");
+
         [Fact] void MinInt() => Parser.Parse("-0x80000000").Should().Be(int.MinValue);
         [Fact] void MaxInt() => Parser.Parse("0x7fffffff").Should().Be(int.MaxValue);
         [Fact] void MaxUInt() => Parser.Parse("0xffffffff").Should().Be(uint.MaxValue);

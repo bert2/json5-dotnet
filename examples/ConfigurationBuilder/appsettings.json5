@@ -1,0 +1,6 @@
+{
+  // hello world
+  description: 'This example shows how to integrate your JSON5 settings file with \
+                the `Microsoft.Extensions.Configuration.ConfigurationBuilder`.',
+  nums: [.1, -Infinity, NaN, 2.e-3, 0b101, 0xBEEF]
+}
