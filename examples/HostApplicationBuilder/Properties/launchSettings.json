@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "HostApplicationBuilder": {
+      "commandName": "Project",
+      "commandLineArgs": "--a \"value from cli\"",
+      "environmentVariables": {
+        "B": "value from environment"
+      }
+    }
+  }
+}

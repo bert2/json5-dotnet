@@ -1,0 +1,14 @@
+{
+  Logging: {
+    LogLevel: {
+      Default: 'Information',
+      'Microsoft.AspNetCore': 'Warning'
+    }
+  },
+  AllowedHosts: '*',
+
+  a: 'this value will be overwritten by a command line argument',
+  b: 'this value will be overwritten by an environment variable',
+  c: 'this value will be overwritten by appsettings.Development.json5',
+  d: 'value from appsettings.json5'
+}

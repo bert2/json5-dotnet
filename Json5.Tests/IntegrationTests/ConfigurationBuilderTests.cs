@@ -1,6 +1,8 @@
-﻿namespace Json5.Tests.ConfigurationTests;
+﻿namespace Json5.Tests.IntegrationTests;
 
 using FluentAssertions;
+
+using Json5.Tests.Helpers;
 
 using Microsoft.Extensions.Configuration;
 
@@ -26,7 +28,7 @@ public class ConfigurationBuilderTests {
                 }
                 """))
             .Build()
-            .Get<Config>();
+            .Get<ExampleConfig>();
 
         cfg.Should().NotBeNull();
         cfg!.A.Should().BeNull();
@@ -41,7 +43,7 @@ public class ConfigurationBuilderTests {
 
     static MemoryStream S(string s) => new(Encoding.Default.GetBytes(s));
 
-    public class Config {
+    public class ExampleConfig {
         public string? A { get; set; }
         public required string B { get; set; }
         public required double[] C { get; set; }

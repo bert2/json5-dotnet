@@ -8,7 +8,7 @@ using System.IO;
 public class Json5ConfigProvider(Json5ConfigSource source) : FileConfigurationProvider(source) {
     public override void Load(Stream stream) {
         try {
-            Data = Json5ConfigFileParser.Parse(stream);
+            Data = Json5ConfigFileParser.Parse(stream, Source.Path);
         } catch (Exception ex) {
             throw new FormatException("Could not parse the JSON5 file.", ex);
         }

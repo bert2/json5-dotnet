@@ -1,0 +1,3 @@
+{
+  c: 'value from appsettings.Production.json5'
+}

@@ -1,6 +1,6 @@
 ﻿#pragma warning disable IDE0051 // Remove unused private members
 
-namespace Json5.Tests.ConfigurationTests;
+namespace Json5.Tests.IntegrationTests;
 
 using FluentAssertions;
 
