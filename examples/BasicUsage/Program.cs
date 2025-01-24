@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using Json5;
+
+using System.Text.Json;
 
 var json5 =
     """
@@ -18,18 +20,18 @@ Console.WriteLine(
 
     Translated to JSON:
 
-    {Json5.Parser.Translate(json5)}
+    {Json5Parser.Translate(json5)}
 
     Parsed as JsonNode:
 
-    {Json5.Parser.Parse(json5)}
+    {Json5Parser.Parse(json5)}
 
     Deserialized as record:
 
     {
         // `JsonSerializerOptions.Web` makes property names case-insensitive and allows
         // floating point literals ("NaN", "Infinity").
-        Json5.Parser.Parse(json5).Deserialize<Foo>(JsonSerializerOptions.Web)
+        Json5Parser.Parse(json5).Deserialize<Foo>(JsonSerializerOptions.Web)
     }
     """);
 

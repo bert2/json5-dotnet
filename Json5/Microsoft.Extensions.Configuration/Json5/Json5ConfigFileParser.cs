@@ -10,7 +10,7 @@ using System.Text.Json.Nodes;
 
 public static class Json5ConfigFileParser {
     public static Dictionary<string, string?> Parse(Stream input, string? path = null) {
-        var json5 = Parser.Parse(input, path);
+        var json5 = Json5Parser.Parse(input, path);
         return json5?.GetValueKind() == JsonValueKind.Object
             ? new(json5.AsObject().ToConfigValues(path: ""), StringComparer.OrdinalIgnoreCase)
             : throw new FormatException($"Top-level JSON5 element must be an object. Instead, {json5.GetKindString()} was found.");

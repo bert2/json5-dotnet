@@ -8,10 +8,12 @@ using Helpers;
 
 using System.Text.Json.Nodes;
 
-public class NpmPackageJson {
-    [Fact] void Json5MatchesEquivalentJsonReference() => Parser.Parse(PackageJson5).Should().Be(JsonNode.Parse(PackageJson));
+using static Json5.Json5Parser;
 
-    [Fact] void JsonMatchesJsonReference() => Parser.Parse(PackageJson).Should().Be(JsonNode.Parse(PackageJson));
+public class NpmPackageJson {
+    [Fact] void Json5MatchesEquivalentJsonReference() => Parse(PackageJson5).Should().Be(JsonNode.Parse(PackageJson));
+
+    [Fact] void JsonMatchesJsonReference() => Parse(PackageJson).Should().Be(JsonNode.Parse(PackageJson));
 
     private const string PackageJson5 =
         """

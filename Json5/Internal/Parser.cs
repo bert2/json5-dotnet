@@ -11,6 +11,6 @@ using static FParsec.CSharp.CharParsersCS;
 
 using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 
-public static class Json5Parser {
+public static class Parser {
     public static StringP Json5 { get; set; } = WSC.And(Json5Value).And(EOF);
 }

@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 
 using static FluentAssertions.FluentActions;
+using static Json5.Json5Parser;
 
 public class General {
     // required to deserialize "Infinity" and "NaN"
@@ -18,7 +19,7 @@ public class General {
 
     [Fact]
     public void Example() =>
-        Parser.Parse(
+        Parse(
             """
             {    
                 foo: 'bar',
@@ -61,7 +62,7 @@ public class General {
 
     [Fact]
     public void Invalid() =>
-        Invoking(() => Parser.Parse("foo"))
+        Invoking(() => Parse("foo"))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 1
@@ -72,7 +73,7 @@ public class General {
 
     [Fact]
     public void Empty() =>
-        Invoking(() => Parser.Parse(""))
+        Invoking(() => Parse(""))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 1

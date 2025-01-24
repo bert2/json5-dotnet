@@ -5,13 +5,13 @@ using FParsec.CSharp;
 using System.Text;
 using System.Text.Json.Nodes;
 
-using static Internal.Json5Parser;
+using static Internal.Parser;
 
 /// <summary>
 /// Provides static methods to translate JSON5 to JSON
 /// or parse JSON5 as a <see cref="JsonNode"/>.
 /// </summary>
-public static class Parser {
+public static class Json5Parser {
     /// <summary>
     /// Translates a JSON5 string to JSON and then parses the result as a <see cref="JsonNode"/>.
     /// </summary>

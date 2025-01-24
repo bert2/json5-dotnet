@@ -10,6 +10,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using static FluentAssertions.FluentActions;
+using static Json5.Json5Parser;
 
 public class Floats {
     // required to deserialize "Infinity" and "NaN"
@@ -17,23 +18,23 @@ public class Floats {
         NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
     };
 
-    [Fact] void LeadingZero() => Parser.Parse("0.123").Should().Be(0.123);
-    [Fact] void NegativeLeadingZero() => Parser.Parse("-0.123").Should().Be(-0.123);
-    [Fact] void PositiveLeadingZero() => Parser.Parse("+0.456").Should().Be(0.456);
-    [Fact] void LeadingZeros() => Parser.Parse("000.123").Should().Be(0.123);
-    [Fact] void WithoutIntegerPart() => Parser.Parse(".0123").Should().Be(.0123);
-    [Fact] void NegativeWithoutIntegerPart() => Parser.Parse("-.5").Should().Be(-.5);
-    [Fact] void PositiveWithoutIntegerPart() => Parser.Parse("+.5").Should().Be(+.5);
-    [Fact] void WithoutFractionDigits() => Parser.Parse("1.").Should().Be(1d);
-    [Fact] void NegativeWithoutFractionDigits() => Parser.Parse("-1.").Should().Be(-1d);
-    [Fact] void PositiveWithoutFractionDigits() => Parser.Parse("+1.").Should().Be(+1d);
-    [Fact] void MinDouble() => Parser.Parse("-1.7976931348623157E+308").Should().Be(double.MinValue);
-    [Fact] void MaxDouble() => Parser.Parse("1.7976931348623157E+308").Should().Be(double.MaxValue);
-    [Fact] void Epsilon() => Parser.Parse("5E-324").Should().Be(double.Epsilon);
+    [Fact] void LeadingZero() => Parse("0.123").Should().Be(0.123);
+    [Fact] void NegativeLeadingZero() => Parse("-0.123").Should().Be(-0.123);
+    [Fact] void PositiveLeadingZero() => Parse("+0.456").Should().Be(0.456);
+    [Fact] void LeadingZeros() => Parse("000.123").Should().Be(0.123);
+    [Fact] void WithoutIntegerPart() => Parse(".0123").Should().Be(.0123);
+    [Fact] void NegativeWithoutIntegerPart() => Parse("-.5").Should().Be(-.5);
+    [Fact] void PositiveWithoutIntegerPart() => Parse("+.5").Should().Be(+.5);
+    [Fact] void WithoutFractionDigits() => Parse("1.").Should().Be(1d);
+    [Fact] void NegativeWithoutFractionDigits() => Parse("-1.").Should().Be(-1d);
+    [Fact] void PositiveWithoutFractionDigits() => Parse("+1.").Should().Be(+1d);
+    [Fact] void MinDouble() => Parse("-1.7976931348623157E+308").Should().Be(double.MinValue);
+    [Fact] void MaxDouble() => Parse("1.7976931348623157E+308").Should().Be(double.MaxValue);
+    [Fact] void Epsilon() => Parse("5E-324").Should().Be(double.Epsilon);
 
     [Fact]
     void LoneDecimalPoint() =>
-        Invoking(() => Parser.Parse("."))
+        Invoking(() => Parse("."))
         .Should().Throw<Exception>().WithMessage(
             """
             Error in Ln: 1 Col: 2
@@ -44,19 +45,19 @@ public class Floats {
             """);
 
     public class Exponent {
-        [Fact] void Example() => Parser.Parse("1.2e3").Should().Be(1.2e3);
-        [Fact] void LowerCaseExponentIndicator() => Parser.Parse("1e3").Should().Be(1e3);
-        [Fact] void UpperCaseExponentIndicator() => Parser.Parse("1E3").Should().Be(1e3);
-        [Fact] void WithoutFractionDigits() => Parser.Parse("5.e4").Should().Be(5.0e4);
-        [Fact] void NegativeInteger() => Parser.Parse("2e-23").Should().Be(2e-23);
-        [Fact] void PositiveInteger() => Parser.Parse("1e+2").Should().Be(1e+2);
-        [Fact] void Zero() => Parser.Parse("5e0").Should().Be(5e0);
-        [Fact] void NegativeZero() => Parser.Parse("5e-0").Should().Be(5e-0);
-        [Fact] void PositiveZero() => Parser.Parse("5e+0").Should().Be(5e+0);
+        [Fact] void Example() => Parse("1.2e3").Should().Be(1.2e3);
+        [Fact] void LowerCaseExponentIndicator() => Parse("1e3").Should().Be(1e3);
+        [Fact] void UpperCaseExponentIndicator() => Parse("1E3").Should().Be(1e3);
+        [Fact] void WithoutFractionDigits() => Parse("5.e4").Should().Be(5.0e4);
+        [Fact] void NegativeInteger() => Parse("2e-23").Should().Be(2e-23);
+        [Fact] void PositiveInteger() => Parse("1e+2").Should().Be(1e+2);
+        [Fact] void Zero() => Parse("5e0").Should().Be(5e0);
+        [Fact] void NegativeZero() => Parse("5e-0").Should().Be(5e-0);
+        [Fact] void PositiveZero() => Parse("5e+0").Should().Be(5e+0);
 
         [Fact]
         void LoneIndicator() =>
-            Invoking(() => Parser.Parse("e"))
+            Invoking(() => Parse("e"))
             .Should().Throw<Exception>().WithMessage(
                 """
                 Error in Ln: 1 Col: 1
@@ -67,7 +68,7 @@ public class Floats {
 
         [Fact]
         void Float() =>
-            Invoking(() => Parser.Parse("1e2.3"))
+            Invoking(() => Parse("1e2.3"))
             .Should().Throw<Exception>().WithMessage(
                 """
                 Error in Ln: 1 Col: 4
@@ -78,7 +79,7 @@ public class Floats {
 
         [Fact]
         void NegativeFloat() =>
-            Invoking(() => Parser.Parse("1e-2.3"))
+            Invoking(() => Parse("1e-2.3"))
             .Should().Throw<Exception>().WithMessage(
                 """
                 Error in Ln: 1 Col: 5
@@ -89,7 +90,7 @@ public class Floats {
 
         [Fact]
         void PositiveFloat() =>
-            Invoking(() => Parser.Parse("1e+2.3"))
+            Invoking(() => Parse("1e+2.3"))
             .Should().Throw<Exception>().WithMessage(
                 """
                 Error in Ln: 1 Col: 5
@@ -100,7 +101,7 @@ public class Floats {
 
         [Fact]
         void Hex() =>
-            Invoking(() => Parser.Parse("1e0x4"))
+            Invoking(() => Parse("1e0x4"))
             .Should().Throw<Exception>().WithMessage(
                 """
                 Error in Ln: 1 Col: 4
@@ -111,7 +112,7 @@ public class Floats {
 
         [Fact]
         void NegativeHex() =>
-            Invoking(() => Parser.Parse("1e-0x4"))
+            Invoking(() => Parse("1e-0x4"))
             .Should().Throw<Exception>().WithMessage(
                 """
                 Error in Ln: 1 Col: 5
@@ -122,7 +123,7 @@ public class Floats {
 
         [Fact]
         void PositiveHex() =>
-            Invoking(() => Parser.Parse("1e+0x4"))
+            Invoking(() => Parse("1e+0x4"))
             .Should().Throw<Exception>().WithMessage(
                 """
                 Error in Ln: 1 Col: 5
@@ -133,19 +134,19 @@ public class Floats {
     }
 
     public class Infinity {
-        [Fact] void Positive() => Parser.Parse("Infinity").Should().Be(double.PositiveInfinity, opts);
-        [Fact] void Negative() => Parser.Parse("-Infinity").Should().Be(double.NegativeInfinity, opts);
-        [Fact] void ExplicitPositive() => Parser.Parse("+Infinity").Should().Be(double.PositiveInfinity, opts);
-        [Fact] void Short() => Parser.Parse("+Inf").Should().Be(double.PositiveInfinity, opts);
-        [Fact] void UpperCase() => Parser.Parse("INFINITY").Should().Be(double.PositiveInfinity, opts);
-        [Fact] void LowerCase() => Parser.Parse("-infinity").Should().Be(double.NegativeInfinity, opts);
+        [Fact] void Positive() => Parse("Infinity").Should().Be(double.PositiveInfinity, opts);
+        [Fact] void Negative() => Parse("-Infinity").Should().Be(double.NegativeInfinity, opts);
+        [Fact] void ExplicitPositive() => Parse("+Infinity").Should().Be(double.PositiveInfinity, opts);
+        [Fact] void Short() => Parse("+Inf").Should().Be(double.PositiveInfinity, opts);
+        [Fact] void UpperCase() => Parse("INFINITY").Should().Be(double.PositiveInfinity, opts);
+        [Fact] void LowerCase() => Parse("-infinity").Should().Be(double.NegativeInfinity, opts);
     }
 
     public class NaN {
-        [Fact] void MixedCase() => Parser.Parse("NaN").Should().Be(double.NaN, opts);
-        [Fact] void UpperCase() => Parser.Parse("NAN").Should().Be(double.NaN, opts);
-        [Fact] void LowerCase() => Parser.Parse("nan").Should().Be(double.NaN, opts);
-        [Fact] void Positive() => Parser.Parse("+NaN").Should().Be(double.NaN, opts);
-        [Fact] void Negative() => Parser.Parse("-NaN").Should().Be(double.NaN, opts);
+        [Fact] void MixedCase() => Parse("NaN").Should().Be(double.NaN, opts);
+        [Fact] void UpperCase() => Parse("NAN").Should().Be(double.NaN, opts);
+        [Fact] void LowerCase() => Parse("nan").Should().Be(double.NaN, opts);
+        [Fact] void Positive() => Parse("+NaN").Should().Be(double.NaN, opts);
+        [Fact] void Negative() => Parse("-NaN").Should().Be(double.NaN, opts);
     }
 }
