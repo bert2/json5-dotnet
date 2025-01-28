@@ -8,7 +8,30 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+/// <summary>
+/// Converts JSON5 data into the <see cref="ConfigurationManager"/> format, i.e. a list of
+/// key-value pairs. Just like default JSON config parser, this parser will flatten nested
+/// JSON5 structures by appending sub-keys to their parent key in order to form unique
+/// value paths.
+/// </summary>
 public static class Json5ConfigFileParser {
+    /// <summary>
+    /// <para>
+    /// Parses the JSON5 input as a <see cref="Dictionary{TKey, TValue}"/>. Expects the
+    /// root element of the input to be a JSON5 object.
+    /// </para>
+    /// <para>
+    /// The root object might be empty, but any other empty objects and empty lists in
+    /// the input will be stored as <c>null</c> values in the output
+    /// <see cref="Dictionary{TKey, TValue}"/>.
+    /// </para>
+    /// </summary>
+    /// <param name="input">The JSON5 data.</param>
+    /// <param name="path">Optional path of the input. Will be shown in parser errors.</param>
+    /// <returns>
+    /// The configuration as <see cref="Dictionary{TKey, TValue}"/> using
+    /// <see cref="StringComparer.OrdinalIgnoreCase"/>.
+    /// </returns>
     public static Dictionary<string, string?> Parse(Stream input, string? path = null) {
         var json5 = Json5Parser.Parse(input, path);
         return json5?.GetValueKind() == JsonValueKind.Object

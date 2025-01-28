@@ -6,14 +6,13 @@ namespace Json5.Internal;
 
 using FParsec.CSharp;
 
-using System.Text;
-
-using static CommonParsers;
+using static Common;
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
 
 using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 
+/// <summary>Implements parsing of JSON5 strings.</summary>
 public static class StringParser {
     public static StringP Json5String { get; set; }
 
@@ -38,21 +37,12 @@ public static class StringParser {
             })
             .Lbl_("escape sequence");
 
-        string Escape(string s) => s
-            .Aggregate(new StringBuilder(), (sb, c) => c switch {
-                '"' => sb.Append(@"\"""),
-                '\\' => sb.Append(@"\\"),
-                <= '\x1F' => sb.Append($@"\u{(int)c:X4}"),
-                _ => sb.Append(c)
-            })
-            .ToString();
-
         StringP StringContentAndQuote(char quote) =>
             ManyStrings(
                 ManyChars(NoneOf($"{quote}\\{BreakingWhitespaceChars}").Lbl("string character")),
                 sep: escapeSequence)
             .And(Skip(quote))
-            .Map(s => '"' + Escape(s) + '"');
+            .Map(s => '"' + Encoder.Encode(s) + '"');
 
         Json5String = AnyOf("'\"").And(StringContentAndQuote).Lbl("string");
     }

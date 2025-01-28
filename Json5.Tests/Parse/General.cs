@@ -1,4 +1,4 @@
-﻿namespace Json5.Tests.ParserTests;
+﻿namespace Json5.Tests.Parse;
 
 using FluentAssertions;
 

@@ -10,6 +10,10 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 
+/// <summary>
+/// Provides extension methods to add your JSON5 appsettings files to <see cref="IConfigurationBuilder"/>s or
+/// <see cref="IHostApplicationBuilder"/>s.
+/// </summary>
 public static class Json5ConfigExtensions {
     /// <summary>
     /// Adds the JSON5 configuration provider at <paramref name="path"/> to <paramref name="builder"/>.

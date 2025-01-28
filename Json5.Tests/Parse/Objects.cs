@@ -1,6 +1,6 @@
 ﻿#pragma warning disable IDE0051 // Remove unused private members
 
-namespace Json5.Tests.ParserTests;
+namespace Json5.Tests.Parse;
 
 using FluentAssertions;
 
@@ -102,9 +102,17 @@ public class Objects {
         [Fact] void DoubleQuotes() => Parse("{ \"foo\": 1, }").Should().Be(new { foo = 1 });
 
         [Fact]
-        void QuotesAllowEverything() =>
+        void QuotesAllowUnicode() =>
             Parse("{ 'boo! 👻': 666 }")
             .Should().Be(new JsonObject([KeyValuePair.Create("boo! 👻", (JsonNode?)666)]));
+
+        [Fact]
+        void QuotesAllowAllCodePoints() => Enumerable
+            .Range(0, 0x10FFFF + 1)
+            .Where(i => i > 0xFFFF || !char.IsSurrogate((char)i))
+            .ForEach(i =>
+                Parse($@"{{ '\u{{{i:X6}}}': 1 }}")
+                .Should().Be(new JsonObject([KeyValuePair.Create(char.ConvertFromUtf32(i), (JsonNode?)1)])));
 
         [Fact]
         void DuplicatesOverwrite() => Parse("{a: 1, a: 2}").Should().Be(new { a = 2 });

@@ -9,7 +9,7 @@ using FParsec.CSharp;
 
 using System.Text;
 
-using static CommonParsers;
+using static Common;
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
 using static FParsec.IdentifierValidator;

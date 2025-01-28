@@ -6,13 +6,20 @@ namespace Json5.Internal;
 
 using FParsec.CSharp;
 
-using static CommonParsers;
+using static Common;
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
 
 using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 
+/// <summary>Implements JSON5 array parsing.</summary>
 public static class ArrayParser {
+    /// <summary>
+    /// <para>Parses a JSON5 array and translates it to JSON.</para>
+    /// <para>
+    /// JSON5 arrays are just like JSON arrays, except that trailing commas are allowed.
+    /// </para>
+    /// </summary>
     public static StringP Json5Array { get; set; }
 
     static ArrayParser() {
