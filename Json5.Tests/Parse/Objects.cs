@@ -148,6 +148,8 @@ public class Objects {
                 Parse("{ ümlåût: 'ümlaüt is löve, ümlaüt is lïfe' }")
                 .Should().Be(new { ümlåût = "ümlaüt is löve, ümlaüt is lïfe" });
 
+            [Fact] void UnescapedUtf32Allowed() => Parse("{ 𐊅: 1 }").Should().Be(new JsonObject([KeyValuePair.Create("𐊅", (JsonNode?)1)]));
+
             [Fact] void NoQuotesAllowUtf16Escapes() => Parse("{ \\u005Ffoo: 1, }").Should().Be(new { _foo = 1 });
 
             [Fact] void NoQuotesAllowUtf32Escapes() => Parse("{ \\u{5F}foo: 1, }").Should().Be(new { _foo = 1 });

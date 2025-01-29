@@ -37,13 +37,13 @@ public static class StringParser {
             })
             .Lbl_("escape sequence");
 
-        StringP StringContentAndQuote(char quote) =>
+        StringP ContentTilQuote(char quote) =>
             ManyStrings(
                 ManyChars(NoneOf($"{quote}\\{BreakingWhitespaceChars}").Lbl("string character")),
                 sep: escapeSequence)
             .And(Skip(quote))
             .Map(s => '"' + Encoder.Encode(s) + '"');
 
-        Json5String = AnyOf("'\"").And(StringContentAndQuote).Lbl("string");
+        Json5String = AnyOf("'\"").And(ContentTilQuote).Lbl("string");
     }
 }

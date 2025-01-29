@@ -7,7 +7,6 @@ namespace Json5.Internal;
 using FParsec;
 using FParsec.CSharp;
 
-using System.Text;
 
 using static Common;
 using static FParsec.CSharp.CharParsersCS;
@@ -32,7 +31,7 @@ public static class ObjectParser {
             .identifier<Unit>(new(
                 isAsciiIdStart: FSharpFunc.From((char c) => c is '$' or '_' || IsXIdStartOrSurrogate(c)),
                 isAsciiIdContinue: FSharpFunc.From((char c) => c is '$' || IsXIdContinueOrJoinControlOrSurrogate(c)),
-                normalization: NormalizationForm.FormC,
+                normalization: System.Text.NormalizationForm.FormC,
                 normalizeBeforeValidation: false,
                 allowJoinControlChars: true,
                 // Accept anything in pre-check, because 1st pass already made sure there
@@ -71,7 +70,7 @@ public static class ObjectParser {
             return new Reply<string>(pass2.Status, err);
         }).Lbl("identifier");
 
-        var memberName = Choice(Json5String, identifier.Map(id => '"' + id + '"'));
+        var memberName = Choice(Json5String, identifier.Map(id => '"' + Encoder.Encode(id) + '"'));
 
         var property =
             memberName.And(WSC)
