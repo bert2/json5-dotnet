@@ -103,12 +103,8 @@
       "properties": {
         "NugetApiKey": {
           "type": "string",
-          "description": "NuGet API key - Required for target Publish (default: null)",
+          "description": "NuGet API key - Required for target Publish",
           "default": "Secrets must be entered via 'nuke :secrets [profile]'"
-        },
-        "SemVer": {
-          "type": "string",
-          "description": "Semantic version - Optional, set to latest git tag if omitted"
         },
         "Solution": {
           "type": "string",
