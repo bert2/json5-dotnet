@@ -18,7 +18,7 @@ class Build : NukeBuild {
     [Parameter($"NuGet API key - Required for target {nameof(Publish)}"), Secret]
     readonly string NugetApiKey = null!;
 
-    string SemVer => Repository.Tags.Single(IsSemVer);
+    string SemVer => Repository.Tags.SingleOrDefault(IsSemVer) ?? "0.0.0";
 
     AbsolutePath ArtifactsDir => RootDirectory / "artifacts";
     AbsolutePath PackagePath => ArtifactsDir / $"{Solution.Json5.Name}.{SemVer}.nupkg";
