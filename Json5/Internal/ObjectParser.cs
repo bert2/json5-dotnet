@@ -7,7 +7,6 @@ namespace Json5.Internal;
 using FParsec;
 using FParsec.CSharp;
 
-
 using static Common;
 using static FParsec.CSharp.CharParsersCS;
 using static FParsec.CSharp.PrimitivesCS;
@@ -17,7 +16,21 @@ using static StringParser;
 using Chars = FParsec.CharStream<Unit>;
 using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 
+/// <summary>Implements JSON5 object parsing.</summary>
 public static class ObjectParser {
+    /// <summary>
+    /// <para>
+    /// Parses a JSON5 object and translates it to JSON. The translation removes all whitespace.
+    /// </para>
+    /// <para>
+    /// JSON5 objects are like JSON objects, except that property names must not be quoted and
+    /// trailing commas are allowed.
+    /// </para>
+    /// <para>
+    /// Property names in the output JSON will be encoded with
+    /// <see cref="System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping"/>.
+    /// </para>
+    /// </summary>
     public static StringP Json5Object { get; set; } = Fail<string>("nope").Lbl("object");
 
     static ObjectParser() {

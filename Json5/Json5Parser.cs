@@ -8,8 +8,7 @@ using System.Text.Json.Nodes;
 using static Internal.Parser;
 
 /// <summary>
-/// Provides static methods to translate JSON5 to JSON
-/// or parse JSON5 as a <see cref="JsonNode"/>.
+/// Provides static methods to translate JSON5 to JSON or parse JSON5 as a <see cref="JsonNode"/>.
 /// </summary>
 public static class Json5Parser {
     /// <summary>
@@ -35,14 +34,14 @@ public static class Json5Parser {
     public static JsonNode? Parse(Stream json5, string? name = null, Encoding? encoding = null)
         => JsonNode.Parse(Translate(json5, name, encoding));
 
-    /// <summary>Translates a JSON5 string to JSON.</summary>
+    /// <summary>Translates a JSON5 string to JSON. Removes all whitespace during translation.</summary>
     /// <param name="json5">The JSON5 data.</param>
     /// <param name="name">Optional name (e.g. a file path) to show in parser errors.</param>
     /// <returns>The JSON string.</returns>
     public static string Translate(string json5, string? name = null)
         => Json5.RunOnString(json5, streamName: name).GetResult();
 
-    /// <summary>Translates a JSON5 stream to JSON.</summary>
+    /// <summary>Translates a JSON5 stream to JSON. Removes all whitespace during translation.</summary>
     /// <param name="json5">The JSON5 data.</param>
     /// <param name="name">Optional name (e.g. a file path) to show in parser errors.</param>
     /// <param name="encoding">

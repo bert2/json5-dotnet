@@ -35,7 +35,7 @@ public static class Common {
     public const string WhitespaceChars = NonBreakingWhitespaceChars + BreakingWhitespaceChars;
 
     /// <summary>
-    /// The encoder used to encode JSON strings and object keys.
+    /// The encoder used to encode JSON strings and object member names.
     /// Defaults to <see cref="JavaScriptEncoder.UnsafeRelaxedJsonEscaping"/>.
     /// <para>
     /// Set to <see cref="JavaScriptEncoder.Default"/> for safer encodings.
@@ -65,9 +65,9 @@ public static class Common {
     /// Parses either:
     /// <list type="bullet">
     /// <item>
-    /// one or more hex digits enclosed with <c>{}</c> and converts the resulting UTF32 character to a UTF16 string.
+    /// One or more hex digits enclosed with <c>{}</c> and converts the resulting UTF32 character to a UTF16 string,
     /// </item>
-    /// <item>four hex digits and converts them to a single-character UTF16 string.</item>
+    /// <item>Four hex digits and converts them to a single-character UTF16 string.</item>
     /// </list>
     /// </summary>
     public static StringP HexEncodedUnicode { get; set; } =

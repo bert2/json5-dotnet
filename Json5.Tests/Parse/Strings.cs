@@ -6,8 +6,6 @@ using FluentAssertions;
 
 using Helpers;
 
-using System.Text;
-
 using static FluentAssertions.FluentActions;
 using static Json5.Json5Parser;
 

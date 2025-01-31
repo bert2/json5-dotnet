@@ -15,7 +15,9 @@ using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 /// <summary>Implements JSON5 array parsing.</summary>
 public static class ArrayParser {
     /// <summary>
-    /// <para>Parses a JSON5 array and translates it to JSON.</para>
+    /// <para>
+    /// Parses a JSON5 array and translates it to JSON. The translation removes all whitespace.
+    /// </para>
     /// <para>
     /// JSON5 arrays are just like JSON arrays, except that trailing commas are allowed.
     /// </para>

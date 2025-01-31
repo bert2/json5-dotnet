@@ -5,8 +5,8 @@ using FluentAssertions;
 using Helpers;
 
 using System;
-using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using static FluentAssertions.FluentActions;
 using static Json5.Json5Parser;

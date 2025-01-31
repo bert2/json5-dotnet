@@ -14,6 +14,20 @@ using StringP = FSharpFunc<FParsec.CharStream<Unit>, FParsec.Reply<string>>;
 
 /// <summary>Implements parsing of JSON5 strings.</summary>
 public static class StringParser {
+    /// <summary>
+    /// <para>
+    /// Parses a JSON5 string and translates it to JSON, i.e.:
+    /// <list type="bullet">
+    /// <item>Single quotes will become double quotes,</item>
+    /// <item>Multiline strings will be merged into a single line,</item>
+    /// <item>Escape sequences will be translated to the character they represent.</item>
+    /// </list>
+    /// </para>
+    /// <item>
+    /// The final string will be encoded with
+    /// <see cref="System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping"/>.
+    /// </item>
+    /// </summary>
     public static StringP Json5String { get; set; }
 
     static StringParser() {
