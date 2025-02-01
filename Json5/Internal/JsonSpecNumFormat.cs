@@ -52,8 +52,8 @@ public static class JsonSpecNumFormat {
         var (sign, literal) = nl.SplitSign();
         var trimmed = new string(literal
             .LeftPairs()
-            .SkipWhile(w => w is ['0', not '.'])
-            .Select(w => w[0])
+            .SkipWhile(w => w.Span is ['0', not '.'])
+            .Select(w => w.Span[0])
             .PrependIfNotNull(sign)
             .ToArray());
         return nl.Clone(trimmed);
@@ -129,34 +129,20 @@ public static class JsonSpecNumFormat {
             nl.SuffixChar4);
 
     /// <summary>
-    /// <para>
-    /// Creates a left-alinged sliding window of size 2 over the input string.
-    /// Basically a fixed-size version of MoreLINQ's <c>WindowLeft(int)</c>.
-    /// </para>
-    /// <para>Allocates only a single array and reuses it for all windows.</para>
+    /// Creates a left-alinged sliding window of size 2 over the input string. Basically
+    /// a fixed-size version of MoreLINQ's <c>WindowLeft(int)</c>, but only for strings.
     /// </summary>
-    /// <param name="s">The input string.</param>
+    /// <param name="str">The input string.</param>
     /// <returns>A sequence representing each sliding window.</returns>
-    private static IEnumerable<char[]> LeftPairs(this string s) {
-        var buffer = new char[2];
-        return LeftPairs(s, buffer);
+    private static IEnumerable<ReadOnlyMemory<char>> LeftPairs(this string str) {
+        if (str.Length == 0) yield break;
 
-        static IEnumerable<char[]> LeftPairs(string s, char[] pair) {
-            using var e = s.GetEnumerator();
+        var mem = str.AsMemory();
 
-            if (!e.MoveNext()) yield break;
+        for (var i = 0; i < mem.Length - 1; i++)
+            yield return mem[i..(i + 2)];
 
-            var previous = e.Current;
-
-            while (e.MoveNext()) {
-                pair[0] = previous;
-                pair[1] = e.Current;
-                yield return pair;
-                previous = e.Current;
-            }
-
-            yield return new[] { previous };
-        }
+        yield return mem[^1..];
     }
 
     private static IEnumerable<T> PrependIfNotNull<T>(this IEnumerable<T> source, T? item)
