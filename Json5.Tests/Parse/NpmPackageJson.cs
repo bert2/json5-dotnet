@@ -8,7 +8,7 @@ using Helpers;
 
 using System.Text.Json.Nodes;
 
-using static Json5.Json5Parser;
+using static Json5.JSON5;
 
 public class NpmPackageJson {
     [Fact] void Json5MatchesEquivalentJsonReference() => Parse(PackageJson5).Should().Be(JsonNode.Parse(PackageJson));

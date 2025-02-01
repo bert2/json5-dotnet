@@ -20,18 +20,18 @@ Console.WriteLine(
 
     Translated to JSON:
 
-    {Json5Parser.Translate(json5)}
+    {JSON5.Translate(json5)}
 
     Parsed as JsonNode:
 
-    {Json5Parser.Parse(json5)}
+    {JSON5.Parse(json5)}
 
     Deserialized as record:
 
     {
         // `JsonSerializerOptions.Web` makes property names case-insensitive and allows
         // floating point literals ("NaN", "Infinity").
-        Json5Parser.Parse(json5).Deserialize<Foo>(JsonSerializerOptions.Web)
+        JSON5.Parse(json5).Deserialize<Foo>(JsonSerializerOptions.Web)
     }
     """);
 

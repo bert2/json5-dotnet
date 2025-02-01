@@ -9,7 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using static FluentAssertions.FluentActions;
-using static Json5.Json5Parser;
+using static Json5.JSON5;
 
 public class General {
     // required to deserialize "Infinity" and "NaN"

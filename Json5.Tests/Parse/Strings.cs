@@ -7,7 +7,7 @@ using FluentAssertions;
 using Helpers;
 
 using static FluentAssertions.FluentActions;
-using static Json5.Json5Parser;
+using static Json5.JSON5;
 
 public class Strings {
     [Fact] void DoubleQuoted() => Parse("\"strings are 'fun'\"").Should().Be("strings are 'fun'");

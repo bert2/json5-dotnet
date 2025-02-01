@@ -10,7 +10,7 @@ using static Internal.Parser;
 /// <summary>
 /// Provides static methods to translate JSON5 to JSON or parse JSON5 as a <see cref="JsonNode"/>.
 /// </summary>
-public static class Json5Parser {
+public static class JSON5 {
     /// <summary>
     /// Translates a JSON5 string to JSON and then parses the result as a <see cref="JsonNode"/>.
     /// </summary>

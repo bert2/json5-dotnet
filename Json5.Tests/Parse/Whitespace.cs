@@ -4,7 +4,7 @@ namespace Json5.Tests.Parse;
 
 using Helpers;
 
-using static Json5.Json5Parser;
+using static Json5.JSON5;
 
 public class Whitespace {
     [Fact] void Leading() => Parse("  \n  \t  42").Should().Be(42);

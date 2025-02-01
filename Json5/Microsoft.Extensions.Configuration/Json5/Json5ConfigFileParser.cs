@@ -33,7 +33,7 @@ public static class Json5ConfigFileParser {
     /// <see cref="StringComparer.OrdinalIgnoreCase"/>.
     /// </returns>
     public static Dictionary<string, string?> Parse(Stream input, string? path = null) {
-        var json5 = Json5Parser.Parse(input, path);
+        var json5 = JSON5.Parse(input, path);
         return json5?.GetValueKind() == JsonValueKind.Object
             ? new(json5.AsObject().ToConfigValues(path: ""), StringComparer.OrdinalIgnoreCase)
             : throw new FormatException($"Top-level JSON5 element must be an object. Instead, {json5.GetKindString()} was found.");

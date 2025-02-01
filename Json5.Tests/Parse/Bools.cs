@@ -6,7 +6,7 @@ using FluentAssertions;
 
 using Helpers;
 
-using static Json5.Json5Parser;
+using static Json5.JSON5;
 
 public class Bools {
     [Fact] void True() => Parse("true").Should().Be(true);

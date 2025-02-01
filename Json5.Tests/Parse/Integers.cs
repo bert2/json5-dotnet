@@ -10,7 +10,7 @@ using System.Numerics;
 using System.Text.Json;
 
 using static FluentAssertions.FluentActions;
-using static Json5.Json5Parser;
+using static Json5.JSON5;
 
 public static class Integers {
     // required to deserialize integers beyond Int128.MinValue and UInt128.MaxValue

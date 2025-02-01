@@ -9,7 +9,7 @@ using Helpers;
 using System.Text.Json.Nodes;
 
 using static FluentAssertions.FluentActions;
-using static Json5.Json5Parser;
+using static Json5.JSON5;
 
 public class Arrays {
     [Fact] void Empty() => Parse("[]").Should().Be(Array.Empty<object>());
