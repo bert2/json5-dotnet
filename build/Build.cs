@@ -5,6 +5,7 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Utilities;
+using Nuke.Common.Utilities.Collections;
 
 using Serilog;
 
@@ -20,8 +21,8 @@ class Build : NukeBuild {
     [Parameter($"NuGet API key - Required for target {nameof(Publish)}"), Secret]
     readonly string NugetApiKey = null!;
 
-    string SemVer => Repository.Tags.First();
-    string PrevSemVer => Repository.Tags.Skip(1).First();
+    string SemVer => Repository.Tags.SingleOrError($"Last commit {Repository.Commit[..7]} wasn't tagged.");
+    string PrevSemVer => Git("describe --tags --abbrev=0 HEAD^").Single().Text;
     string CommitMsgsSinceLastSemVer => Git($"log {PrevSemVer}..HEAD --format=%s").Select(o => o.Text).Join(Environment.NewLine);
 
     AbsolutePath ArtifactsDir => RootDirectory / "artifacts";
@@ -47,8 +48,8 @@ class Build : NukeBuild {
             .SetProject(Solution.Json5)
             .SetNoBuild(true)
             .SetVersion(SemVer)
-            .SetPackageId(Solution.Json5.Name)
-            .SetTitle(Solution.Json5.Name)
+            .SetPackageId("JSON5")
+            .SetTitle("JSON5")
             .SetDescription("JSON5 for your dotnet appsettings files.")
             .SetPackageTags("JSON5 JSON parser translator deserializer appsettings configuration hosting")
             .SetPackageReleaseNotes(CommitMsgsSinceLastSemVer)
