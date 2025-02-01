@@ -20,8 +20,9 @@ class Build : NukeBuild {
     [Parameter($"NuGet API key - Required for target {nameof(Publish)}"), Secret]
     readonly string NugetApiKey = null!;
 
-    string SemVer => Repository.Tags.SingleOrDefault(IsSemVer) ?? "0.0.0";
-    string LastCommitMsg => Git("git log -1 --format=%s").Single().Text;
+    string SemVer => Repository.Tags.First();
+    string PrevSemVer => Repository.Tags.Skip(1).First();
+    string CommitMsgsSinceLastSemVer => Git($"log {PrevSemVer}..HEAD --format=%s").Select(o => o.Text).Join(Environment.NewLine);
 
     AbsolutePath ArtifactsDir => RootDirectory / "artifacts";
     AbsolutePath PackagePath => ArtifactsDir / $"{Solution.Json5.Name}.{SemVer}.nupkg";
@@ -50,7 +51,7 @@ class Build : NukeBuild {
             .SetTitle(Solution.Json5.Name)
             .SetDescription("JSON5 for your dotnet appsettings files.")
             .SetPackageTags("JSON5 JSON parser translator deserializer appsettings configuration hosting")
-            .SetPackageReleaseNotes(LastCommitMsg)
+            .SetPackageReleaseNotes(CommitMsgsSinceLastSemVer)
             .SetAuthors("Robert Hofmann")
             .AddProcessAdditionalArguments("-p:PackageLicenseExpression=MIT")
             .SetRepositoryUrl("https://github.com/bert2/json5-dotnet.git")
@@ -63,31 +64,10 @@ class Build : NukeBuild {
     Target Publish => t => t
         .DependsOn(Test, Pack)
         .Requires(() => Repository.IsOnMainBranch())
-        .Requires(() => LastCommitHasSemVerTag())
         .Requires(() => NugetApiKey)
         .Executes(() => /*DotNetNuGetPush(opts => opts
             .SetTargetPath(PackagePath)
             .SetSource("https://www.nuget.org/")
             .SetApiKey(NugetApiKey)));*/
             Log.Information($"{string.Join(",", Repository.Tags)} dotnet nuget push {PackagePath} --source https://www.nuget.org/ --api-key {NugetApiKey}"));
-
-    bool IsSemVer(string s)
-        => Version.TryParse(s, out var v)
-        && v is { Major: not -1, Minor: not -1, Build: not -1, Revision: -1, MajorRevision: -1, MinorRevision: -1 };
-
-    bool LastCommitHasSemVerTag() {
-        var sha = Repository.Commit;
-        var tags = Repository.Tags.Join(", ");
-
-        switch (Repository.Tags.Count(IsSemVer)) {
-            case 0:
-                Log.Error($"No semver tag found on last commit ({sha}). Existing tags: [{tags}]");
-                return false;
-            case 1:
-                return true;
-            default:
-                Log.Error($"Multiple semver tags found on last commit ({sha}). Existing tags: [{tags}]");
-                return false;
-        }
-    }
 }
