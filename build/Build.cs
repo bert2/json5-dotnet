@@ -2,6 +2,7 @@ using Nuke.Common;
 using Nuke.Common.Git;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
+using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Utilities;
 
@@ -14,14 +15,19 @@ class Build : NukeBuild {
 
     [GitRepository] readonly GitRepository Repository = null!;
     [Solution(GenerateProjects = true)] readonly Solution Solution = null!;
+    [PathVariable] readonly Tool Git = null!;
 
     [Parameter($"NuGet API key - Required for target {nameof(Publish)}"), Secret]
     readonly string NugetApiKey = null!;
 
     string SemVer => Repository.Tags.SingleOrDefault(IsSemVer) ?? "0.0.0";
+    string LastCommitMsg => Git("git log -1 --format=%s").Single().Text;
 
     AbsolutePath ArtifactsDir => RootDirectory / "artifacts";
     AbsolutePath PackagePath => ArtifactsDir / $"{Solution.Json5.Name}.{SemVer}.nupkg";
+
+    Target Clean => t => t
+        .Executes(() => ArtifactsDir.DeleteDirectory());
 
     Target Compile => t => t
         .Executes(() => DotNetBuild(opts => opts
@@ -35,21 +41,22 @@ class Build : NukeBuild {
             .SetNoBuild(true)));
 
     Target Pack => t => t
-        .DependsOn(Compile)
+        .DependsOn(Clean, Compile)
         .Executes(() => DotNetPack(opts => opts
             .SetProject(Solution.Json5)
             .SetNoBuild(true)
             .SetVersion(SemVer)
             .SetPackageId(Solution.Json5.Name)
             .SetTitle(Solution.Json5.Name)
-            .SetDescription("test; desc")
-            .SetPackageTags("JSON5; JSON; parser")
-            .SetPackageReleaseNotes("test rel notes")
+            .SetDescription("JSON5 for your dotnet appsettings files.")
+            .SetPackageTags("JSON5 JSON parser translator deserializer appsettings configuration hosting")
+            .SetPackageReleaseNotes(LastCommitMsg)
             .SetAuthors("Robert Hofmann")
-            .SetRepositoryUrl("https://github.com/bert2/json5.git")
-            .SetPackageLicenseUrl("MIT")
-            .SetIncludeSource(true)
+            .AddProcessAdditionalArguments("-p:PackageLicenseExpression=MIT")
+            .SetRepositoryUrl("https://github.com/bert2/json5-dotnet.git")
             .SetIncludeSymbols(true)
+            .SetIncludeSource(true)
+            .AddProcessAdditionalArguments("-p:EmbedAllSources=true")
             .SetSymbolPackageFormat(DotNetSymbolPackageFormat.snupkg)
             .SetOutputDirectory(ArtifactsDir)));
 
