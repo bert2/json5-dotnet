@@ -2,7 +2,6 @@
 
 using static FParsec.CharParsers;
 using static FParsec.CharParsers.NumberLiteralResultFlags;
-using static MoreLinq.Extensions.WindowLeftExtension;
 
 /// <summary>Provides helpers to convert JSON5 numbers to JSON numbers.</summary>
 public static class JsonSpecNumFormat {
@@ -52,7 +51,7 @@ public static class JsonSpecNumFormat {
     public static NumberLiteral TrimExcessLeadingZeros(this NumberLiteral nl) {
         var (sign, literal) = nl.SplitSign();
         var trimmed = new string(literal
-            .WindowLeft(2)
+            .LeftPairs()
             .SkipWhile(w => w is ['0', not '.'])
             .Select(w => w[0])
             .PrependIfNotNull(sign)
@@ -128,6 +127,37 @@ public static class JsonSpecNumFormat {
             nl.SuffixChar2,
             nl.SuffixChar3,
             nl.SuffixChar4);
+
+    /// <summary>
+    /// <para>
+    /// Creates a left-alinged sliding window of size 2 over the input string.
+    /// Basically a fixed-size version of MoreLINQ's <c>WindowLeft(int)</c>.
+    /// </para>
+    /// <para>Allocates only a single array and reuses it for all windows.</para>
+    /// </summary>
+    /// <param name="s">The input string.</param>
+    /// <returns>A sequence representing each sliding window.</returns>
+    private static IEnumerable<char[]> LeftPairs(this string s) {
+        var buffer = new char[2];
+        return LeftPairs(s, buffer);
+
+        static IEnumerable<char[]> LeftPairs(string s, char[] pair) {
+            using var e = s.GetEnumerator();
+
+            if (!e.MoveNext()) yield break;
+
+            var previous = e.Current;
+
+            while (e.MoveNext()) {
+                pair[0] = previous;
+                pair[1] = e.Current;
+                yield return pair;
+                previous = e.Current;
+            }
+
+            yield return new[] { previous };
+        }
+    }
 
     private static IEnumerable<T> PrependIfNotNull<T>(this IEnumerable<T> source, T? item)
         where T : struct

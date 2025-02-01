@@ -19,9 +19,11 @@ public class Floats {
     };
 
     [Fact] void LeadingZero() => Parse("0.123").Should().Be(0.123);
+    [Fact] void LeadingZeroAndNonZero() => Parse("01.123").Should().Be(1.123);
+    [Fact] void LeadingZeros() => Parse("000.123").Should().Be(0.123);
+    [Fact] void LeadingZerosAndNonZero() => Parse("0001.123").Should().Be(1.123);
     [Fact] void NegativeLeadingZero() => Parse("-0.123").Should().Be(-0.123);
     [Fact] void PositiveLeadingZero() => Parse("+0.456").Should().Be(0.456);
-    [Fact] void LeadingZeros() => Parse("000.123").Should().Be(0.123);
     [Fact] void WithoutIntegerPart() => Parse(".0123").Should().Be(.0123);
     [Fact] void NegativeWithoutIntegerPart() => Parse("-.5").Should().Be(-.5);
     [Fact] void PositiveWithoutIntegerPart() => Parse("+.5").Should().Be(+.5);

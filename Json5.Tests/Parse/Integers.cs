@@ -21,6 +21,7 @@ public static class Integers {
         [Fact] void UpperCaseFormatSpecifier() => Parse("0B010101").Should().Be(21);
         [Fact] void Positive() => Parse("+0b1101010").Should().Be(106);
         [Fact] void Negative() => Parse("-0b1101110001").Should().Be(-881);
+        [Fact] void LeadingZero() => Parse("0b01").Should().Be(1);
         [Fact] void LeadingZeros() => Parse("0b000000001").Should().Be(1);
 
         [Fact]
@@ -51,7 +52,8 @@ public static class Integers {
     public class Dec {
         [Fact] void Positive() => Parse("+546").Should().Be(546);
         [Fact] void Negative() => Parse("-1656").Should().Be(-1656);
-        [Fact] void LeadingZeros() => Parse("00123").Should().Be(123);
+        [Fact] void LeadingZero() => Parse("0123").Should().Be(123);
+        [Fact] void LeadingZeros() => Parse("000123").Should().Be(123);
 
         [Fact] void MinInt() => Parse("-2147483648").Should().Be(int.MinValue);
         [Fact] void MaxInt() => Parse("2147483647").Should().Be(int.MaxValue);
@@ -71,6 +73,7 @@ public static class Integers {
         [Fact] void UpperCaseFormatSpecifier() => Parse("0XABCDEF").Should().Be(11259375);
         [Fact] void Positive() => Parse("+0x0023FF").Should().Be(9215);
         [Fact] void Negative() => Parse("-0x12A").Should().Be(-298);
+        [Fact] void LeadingZero() => Parse("0x0B").Should().Be(11);
         [Fact] void LeadingZeros() => Parse("0x000B").Should().Be(11);
         [Fact] void WithFakeExponent() => Parse("0xC8e4").Should().Be(51428);
 

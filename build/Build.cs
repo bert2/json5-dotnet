@@ -40,6 +40,17 @@ class Build : NukeBuild {
             .SetProject(Solution.Json5)
             .SetNoBuild(true)
             .SetVersion(SemVer)
+            .SetPackageId(Solution.Json5.Name)
+            .SetTitle(Solution.Json5.Name)
+            .SetDescription("test; desc")
+            .SetPackageTags("JSON5; JSON; parser")
+            .SetPackageReleaseNotes("test rel notes")
+            .SetAuthors("Robert Hofmann")
+            .SetRepositoryUrl("https://github.com/bert2/json5.git")
+            .SetPackageLicenseUrl("MIT")
+            .SetIncludeSource(true)
+            .SetIncludeSymbols(true)
+            .SetSymbolPackageFormat(DotNetSymbolPackageFormat.snupkg)
             .SetOutputDirectory(ArtifactsDir)));
 
     Target Publish => t => t
