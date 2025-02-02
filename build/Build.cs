@@ -67,7 +67,8 @@ class Build : NukeBuild {
         .DependsOn(Compile)
         .Executes(() => DotNetTest(opts => opts
             .SetProjectFile(Solution.Json5_Tests)
-            .SetNoBuild(true)));
+            .SetNoBuild(true)
+            .SetConfiguration("Release")));
 
     Target Pack => t => t
         .DependsOn(Clean, Compile)
