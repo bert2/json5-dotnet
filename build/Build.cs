@@ -80,7 +80,7 @@ class Build : NukeBuild {
             .SetTitle("JSON5")
             .SetDescription("JSON5 for your dotnet appsettings files.")
             .SetPackageTags("JSON5 JSON parser translator deserializer appsettings configuration hosting")
-            .SetPackageReleaseNotes(ReleaseNotes.Replace(';', ','))
+            .SetPackageReleaseNotes(ReleaseNotes.Replace(";", "%3B").Replace(",", "%2C"))
             .SetAuthors("Robert Hofmann")
             .AddProcessAdditionalArguments("-p:PackageLicenseExpression=MIT")
             .SetRepositoryUrl("https://github.com/bert2/json5-dotnet.git")
