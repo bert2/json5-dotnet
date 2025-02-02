@@ -15,6 +15,12 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     "continuous",
     GitHubActionsImage.UbuntuLatest,
     On = [GitHubActionsTrigger.Push],
+    InvokedTargets = [nameof(Test), nameof(Pack)])]
+[GitHubActions(
+    "release",
+    GitHubActionsImage.UbuntuLatest,
+    OnPushBranches = ["main"],
+    OnPushTags = ["[0-9]+.[0-9]+.[0-9]+"],
     ImportSecrets = [nameof(NuGetApiKey)],
     InvokedTargets = [nameof(Publish)])]
 [GitHubActions(
@@ -32,26 +38,20 @@ class Build : NukeBuild {
     [Parameter($"NuGet API key - Required for target {nameof(Publish)}"), Secret]
     readonly string NuGetApiKey = null!;
 
-    string? CurrSemVer => Repository.Tags.SingleOrDefault();
+    bool IsRelease => Version.TryParse(Repository.Tags.SingleOrDefault(), out _);
+
+    string CurrSemVer => Repository.Tags.Single();
 
     string? prevSemVer;
     string PrevSemVer => prevSemVer ??= Git($"describe --tags --abbrev=0 HEAD^").Single().Text;
 
-    string SemVer => CurrSemVer ?? $"{PrevSemVer}-{Repository.Branch}-{Repository.Commit[..7]}";
+    string SemVer => IsRelease ? CurrSemVer : $"{PrevSemVer}-{Repository.Branch}-{Repository.Commit[..7]}";
 
     string? releaseNotes;
     string ReleaseNotes => releaseNotes ??= Git($"log {PrevSemVer}.. --format=%s").Select(o => o.Text).Join(Environment.NewLine);
 
     AbsolutePath ArtifactsDir => RootDirectory / "artifacts";
     AbsolutePath PackagePath => ArtifactsDir / $"{Solution.Json5.Name}.{SemVer}.nupkg";
-
-    Target Info => t => t
-        .Executes(() => {
-            Log.Information("CurrSemVer {0}", CurrSemVer);
-            Log.Information("PrevSemVer {0}", PrevSemVer);
-            Log.Information("SemVer {0}", SemVer);
-            Log.Information("ReleaseNotes {0}", ReleaseNotes);
-        });
 
     Target Clean => t => t
         .Executes(() => ArtifactsDir.DeleteDirectory());
@@ -90,9 +90,8 @@ class Build : NukeBuild {
 
     Target Publish => t => t
         .DependsOn(Test, Pack)
-        .Requires(() => Repository.IsOnMainBranch())
         .Requires(() => NuGetApiKey)
-        .OnlyWhenDynamic(() => Repository.Tags.Count != 0)
+        .Requires(() => Repository.IsOnMainBranch() && IsRelease)
         .Executes(() => /*DotNetNuGetPush(opts => opts
             .SetTargetPath(PackagePath)
             .SetSource("https://api.nuget.org/v3/index.json")

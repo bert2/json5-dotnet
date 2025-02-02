@@ -9,14 +9,19 @@
 #
 #     - To trigger manual generation invoke:
 #
-#         nuke --generate-configuration GitHubActions_continuous --host GitHubActions
+#         nuke --generate-configuration GitHubActions_release --host GitHubActions
 #
 # </auto-generated>
 # ------------------------------------------------------------------------------
 
-name: continuous
+name: release
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   ubuntu-latest:
@@ -31,8 +36,10 @@ jobs:
             .nuke/temp
             ~/.nuget/packages
           key: ${{ runner.os }}-${{ hashFiles('**/global.json', '**/*.csproj', '**/Directory.Packages.props') }}
-      - name: 'Run: Test, Pack'
-        run: ./build.cmd Test Pack
+      - name: 'Run: Publish'
+        run: ./build.cmd Publish
+        env:
+          NuGetApiKey: ${{ secrets.NUGET_API_KEY }}
       - name: 'Publish: artifacts'
         uses: actions/upload-artifact@v4
         with:
