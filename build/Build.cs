@@ -13,21 +13,20 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [GitHubActions(
     "continuous",
-    GitHubActionsImage.UbuntuLatest,
+    GitHubActionsImage.WindowsLatest,
     On = [GitHubActionsTrigger.Push],
     FetchDepth = 0,
     InvokedTargets = [nameof(Test), nameof(Pack)])]
 [GitHubActions(
     "release",
-    GitHubActionsImage.UbuntuLatest,
-    OnPushBranches = ["main"],
+    GitHubActionsImage.WindowsLatest,
     OnPushTags = ["[0-9]+.[0-9]+.[0-9]+"],
     FetchDepth = 0,
     ImportSecrets = [nameof(NuGetApiKey)],
     InvokedTargets = [nameof(Publish)])]
 [GitHubActions(
     "pr",
-    GitHubActionsImage.UbuntuLatest,
+    GitHubActionsImage.WindowsLatest,
     On = [GitHubActionsTrigger.PullRequest],
     FetchDepth = 0,
     InvokedTargets = [nameof(Test), nameof(Pack)])]
