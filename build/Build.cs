@@ -53,7 +53,7 @@ class Build : NukeBuild {
     string ReleaseNotes => releaseNotes ??= Git($"log {PrevSemVer}.. --format=%s").Select(o => o.Text).Join(Environment.NewLine);
 
     AbsolutePath ArtifactsDir => RootDirectory / "artifacts";
-    AbsolutePath PackagePath => ArtifactsDir / $"{Solution.Json5.Name}.{SemVer}.nupkg";
+    AbsolutePath PackageFile => ArtifactsDir / $"JSON5.{SemVer}.nupkg";
 
     Target Clean => t => t
         .Executes(() => ArtifactsDir.DeleteDirectory());
@@ -96,8 +96,8 @@ class Build : NukeBuild {
         .Requires(() => NuGetApiKey)
         .Requires(() => Repository.IsOnMainBranch() && IsRelease)
         .Executes(() => /*DotNetNuGetPush(opts => opts
-            .SetTargetPath(PackagePath)
+            .SetTargetPath(PackageFile)
             .SetSource("https://api.nuget.org/v3/index.json")
             .SetApiKey(NugetApiKey)));*/
-            Log.Information($"{string.Join(",", Repository.Tags)} dotnet nuget push {PackagePath} --source https://api.nuget.org/v3/index.json --api-key {NuGetApiKey}"));
+            Log.Information($"{string.Join(",", Repository.Tags)} dotnet nuget push {PackageFile} --source https://api.nuget.org/v3/index.json --api-key {NuGetApiKey}"));
 }
