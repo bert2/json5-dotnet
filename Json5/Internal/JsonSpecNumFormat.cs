@@ -129,7 +129,7 @@ public static class JsonSpecNumFormat {
             nl.SuffixChar4);
 
     /// <summary>
-    /// Creates a left-alinged sliding window of size 2 over the input string. Basically
+    /// Creates a left-aligned sliding window of size 2 over the input string. Basically
     /// a fixed-size version of MoreLINQ's <c>WindowLeft(int)</c>, but only for strings.
     /// </summary>
     /// <param name="str">The input string.</param>

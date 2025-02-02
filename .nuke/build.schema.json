@@ -26,6 +26,7 @@
       "enum": [
         "Clean",
         "Compile",
+        "Info",
         "Pack",
         "Publish",
         "Test"
@@ -102,7 +103,7 @@
   "allOf": [
     {
       "properties": {
-        "NugetApiKey": {
+        "NuGetApiKey": {
           "type": "string",
           "description": "NuGet API key - Required for target Publish",
           "default": "Secrets must be entered via 'nuke :secrets [profile]'"
