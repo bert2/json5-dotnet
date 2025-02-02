@@ -15,18 +15,21 @@ using static Nuke.Common.Tools.DotNet.DotNetTasks;
     "continuous",
     GitHubActionsImage.UbuntuLatest,
     On = [GitHubActionsTrigger.Push],
+    FetchDepth = 0,
     InvokedTargets = [nameof(Test), nameof(Pack)])]
 [GitHubActions(
     "release",
     GitHubActionsImage.UbuntuLatest,
     OnPushBranches = ["main"],
     OnPushTags = ["[0-9]+.[0-9]+.[0-9]+"],
+    FetchDepth = 0,
     ImportSecrets = [nameof(NuGetApiKey)],
     InvokedTargets = [nameof(Publish)])]
 [GitHubActions(
     "pr",
     GitHubActionsImage.UbuntuLatest,
     On = [GitHubActionsTrigger.PullRequest],
+    FetchDepth = 0,
     InvokedTargets = [nameof(Test), nameof(Pack)])]
 class Build : NukeBuild {
     public static int Main() => Execute<Build>(x => x.Compile);
